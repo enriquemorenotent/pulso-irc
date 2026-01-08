@@ -1,0 +1,38 @@
+{
+  "name": "pulso-irc-desktop",
+  "version": "0.1.1",
+  "description": "Standalone IRC desktop client.",
+  "private": true,
+  "author": "Enrique Moreno Tent",
+  "type": "commonjs",
+  "main": "app/main.js",
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "build:renderer": "npm --prefix ./renderer run build",
+    "prepare-app": "node scripts/prepare-app.js",
+    "build": "npm run build:renderer && npm run prepare-app && electron-builder",
+    "pack": "npm run build:renderer && npm run prepare-app && electron-builder --dir"
+  },
+  "devDependencies": {
+    "electron": "^39.2.7",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.pulso.irc",
+    "productName": "Pulso IRC",
+    "icon": "build/icon.png",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "app/**",
+      "package.json"
+    ],
+    "linux": {
+      "category": "Network",
+      "target": [
+        "AppImage"
+      ]
+    }
+  }
+}
