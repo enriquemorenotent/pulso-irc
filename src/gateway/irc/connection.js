@@ -1,52 +1,10 @@
 const tls = require('tls');
 const { parseLine, normalizeEvent } = require('./parser');
+const { createBackoff } = require('./backoff');
+const { createCapabilityHandler } = require('./capabilities');
 const { logInfo, logWarn, logError } = require('../logger');
 
 const MAX_LINE_LENGTH = 512;
-
-const createBackoff = () => {
-  let attempt = 0;
-
-  const reset = () => {
-    attempt = 0;
-  };
-
-  const nextDelay = () => {
-    attempt += 1;
-    const delay = 1000 * Math.pow(2, attempt - 1);
-    return Math.min(delay, 30000);
-  };
-
-  return { reset, nextDelay };
-};
-
-const base64Encode = (value) => Buffer.from(value, 'utf8').toString('base64');
-
-const buildSaslResponse = ({ method, username, password, authzid }) => {
-  if (method === 'PLAIN') {
-    const user = authzid || username || '';
-    const payload = `\u0000${user}\u0000${password || ''}`;
-    return base64Encode(payload);
-  }
-
-  if (method === 'EXTERNAL') {
-    const payload = authzid || '';
-    return base64Encode(payload);
-  }
-
-  return '';
-};
-
-const parseCapList = (raw) => {
-  if (!raw) {
-    return [];
-  }
-
-  return raw
-    .split(' ')
-    .map((cap) => cap.trim())
-    .filter(Boolean);
-};
 
 const createIrcConnection = (options) => {
   const {
@@ -72,11 +30,7 @@ const createIrcConnection = (options) => {
   let closing = false;
   let connected = false;
   let sentNickUser = false;
-  let saslState = 'idle';
-  let capRequested = new Set(caps || []);
-  let capEnabled = new Set();
-  let capOffered = new Set();
-  let capLsComplete = false;
+  let capEnabled = [];
   const backoff = createBackoff();
 
   const emitError = (code, message) => {
@@ -104,120 +58,30 @@ const createIrcConnection = (options) => {
     sendLine(`USER ${username} 0 * :${realname}`);
   };
 
-  const finishCap = () => {
-    sendLine('CAP END');
-    sendNickUser();
-  };
-
-  const startSasl = () => {
-    if (!sasl || !sasl.method) {
-      finishCap();
-      return;
-    }
-
-    saslState = 'requested';
-    sendLine(`AUTHENTICATE ${sasl.method}`);
-  };
-
-  const handleAuthenticate = (parsed) => {
-    if (saslState !== 'requested') {
-      return;
-    }
-
-    const payload = parsed.params[0];
-    if (payload !== '+') {
-      emitError('sasl_unexpected', 'Unexpected SASL payload');
-      return;
-    }
-
-    const response = buildSaslResponse({
-      method: sasl.method,
-      username,
-      password: sasl.password,
-      authzid: sasl.authzid,
-    });
-
-    if (!response) {
-      emitError('sasl_unsupported', 'Unsupported SASL method');
-      return;
-    }
-
-    saslState = 'in_progress';
-    sendLine(`AUTHENTICATE ${response}`);
-  };
-
-  const handleCapLs = (parsed) => {
-    const capListRaw = parsed.params[parsed.params.length - 1] || '';
-    const hasMore = parsed.params[2] === '*';
-    const offered = parseCapList(capListRaw);
-
-    offered.forEach((cap) => capOffered.add(cap));
-
-    if (hasMore) {
-      return;
-    }
-
-    capLsComplete = true;
-    const requested = Array.from(capOffered).filter((cap) => capRequested.has(cap));
-
-    if (requested.length > 0) {
-      sendLine(`CAP REQ :${requested.join(' ')}`);
-    } else {
-      finishCap();
-    }
-  };
-
-  const handleCap = (parsed) => {
-    const subCommand = parsed.params[1];
-
-    if (subCommand === 'LS') {
-      handleCapLs(parsed);
-      return;
-    }
-
-    if (subCommand === 'ACK') {
-      const capListRaw = parsed.params.slice(2).join(' ');
-      const enabled = parseCapList(capListRaw);
-      enabled.forEach((cap) => capEnabled.add(cap));
-
-      if (capEnabled.has('sasl')) {
-        startSasl();
-        return;
-      }
-
-      finishCap();
-      return;
-    }
-
-    if (subCommand === 'NAK') {
-      emitError('cap_nak', 'Requested capabilities were rejected');
-      if (capLsComplete) {
-        finishCap();
-      }
-    }
-  };
+  const capabilityHandler = createCapabilityHandler({
+    caps,
+    sasl,
+    username,
+    sendLine,
+    onCapEnd: (enabledCaps) => {
+      capEnabled = enabledCaps;
+      sendLine('CAP END');
+      sendNickUser();
+    },
+    onError: emitError,
+  });
 
   const handleNumeric = (command) => {
     if (command === '001' && !connected) {
       connected = true;
       backoff.reset();
       if (onConnected) {
-        onConnected({ server: host, capEnabled: Array.from(capEnabled) });
+        onConnected({ server: host, capEnabled: capabilityHandler.getEnabledCaps() });
       }
       return;
     }
 
-    if (command === '903') {
-      saslState = 'done';
-      finishCap();
-      return;
-    }
-
-    if (['904', '905', '906', '907'].includes(command)) {
-      saslState = 'failed';
-      emitError('sasl_failed', 'SASL authentication failed');
-      finishCap();
-    }
+    capabilityHandler.handleNumeric(command);
   };
 
   const handleLine = (line) => {
@@ -232,11 +96,11 @@ const createIrcConnection = (options) => {
     }
 
     if (parsed.command === 'CAP') {
-      handleCap(parsed);
+      capabilityHandler.handleCap(parsed);
     }
 
     if (parsed.command === 'AUTHENTICATE') {
-      handleAuthenticate(parsed);
+      capabilityHandler.handleAuthenticate(parsed);
     }
 
     if (/^\d{3}$/.test(parsed.command)) {
@@ -284,9 +148,8 @@ const createIrcConnection = (options) => {
     sentNickUser = false;
     buffer = '';
     connected = false;
-    saslState = 'idle';
-    capOffered = new Set();
-    capLsComplete = false;
+    capEnabled = [];
+    capabilityHandler.reset();
 
     socket = tls.connect(
       {

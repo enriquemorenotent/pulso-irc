@@ -20,6 +20,7 @@ const main = async () => {
   const appDir = path.join(root, 'app');
   const frontendDist = path.join(root, 'renderer', 'dist');
   const mainSource = path.join(root, 'src', 'main.js');
+  const mainModulesSource = path.join(root, 'src', 'main');
   const preloadSource = path.join(root, 'src', 'preload.js');
   const gatewaySource = path.join(root, 'src', 'gateway');
 
@@ -43,6 +44,9 @@ const main = async () => {
   await ensureDir(appDir);
 
   await copyFile(mainSource, path.join(appDir, 'main.js'));
+  if (exists(mainModulesSource)) {
+    await copyDir(mainModulesSource, path.join(appDir, 'main'));
+  }
   await copyFile(preloadSource, path.join(appDir, 'preload.js'));
   await copyDir(gatewaySource, path.join(appDir, 'gateway'));
   await copyDir(frontendDist, path.join(appDir, 'renderer'));
