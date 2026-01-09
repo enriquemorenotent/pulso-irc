@@ -1,3 +1,12 @@
+import {
+	Ban,
+	Info,
+	MessageCircle,
+	Trash2,
+	UserMinus,
+	UserPlus,
+	X,
+} from 'lucide-react';
 import { useEffect, useRef } from 'react';
 
 const NickContextMenu = ({
@@ -79,19 +88,7 @@ const NickContextMenu = ({
 					}}
 					className={menuItemClass}
 				>
-					<svg
-						className="w-4 h-4"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-						strokeWidth={2}
-					>
-						<path
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-						/>
-					</svg>
+					<MessageCircle className="w-4 h-4" />
 					Send Message
 				</button>
 			)}
@@ -105,19 +102,7 @@ const NickContextMenu = ({
 					}}
 					className={menuItemClass}
 				>
-					<svg
-						className="w-4 h-4"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-						strokeWidth={2}
-					>
-						<path
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"
-						/>
-					</svg>
+					<Info className="w-4 h-4" />
 					Whois
 				</button>
 			)}
@@ -136,19 +121,7 @@ const NickContextMenu = ({
 								: 'text-red-600 dark:text-red-400'
 						}`}
 					>
-						<svg
-							className="w-4 h-4"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke="currentColor"
-							strokeWidth={2}
-						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
-							/>
-						</svg>
+						<Ban className="w-4 h-4" />
 						{isBlocked ? 'Unblock User' : 'Block User'}
 					</button>
 					<button
@@ -159,19 +132,7 @@ const NickContextMenu = ({
 						}}
 						className={`${menuItemClass} text-red-600 dark:text-red-400`}
 					>
-						<svg
-							className="w-4 h-4"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke="currentColor"
-							strokeWidth={2}
-						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6"
-							/>
-						</svg>
+						<UserMinus className="w-4 h-4" />
 						Remove Friend
 					</button>
 				</>
@@ -185,19 +146,7 @@ const NickContextMenu = ({
 						}}
 						className={`${menuItemClass} text-blue-600 dark:text-blue-400`}
 					>
-						<svg
-							className="w-4 h-4"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke="currentColor"
-							strokeWidth={2}
-						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-							/>
-						</svg>
+						<UserPlus className="w-4 h-4" />
 						Add Friend
 					</button>
 					<button
@@ -212,19 +161,7 @@ const NickContextMenu = ({
 								: 'text-red-600 dark:text-red-400'
 						}`}
 					>
-						<svg
-							className="w-4 h-4"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke="currentColor"
-							strokeWidth={2}
-						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
-							/>
-						</svg>
+						<Ban className="w-4 h-4" />
 						{isBlocked ? 'Unblock User' : 'Block User'}
 					</button>
 				</>
@@ -237,52 +174,28 @@ const NickContextMenu = ({
 						<button
 							type="button"
 							onClick={() => {
-								onClearLogs(nick);
-								onClose();
-							}}
-							className={`${menuItemClass} text-red-600 dark:text-red-400`}
-						>
-							<svg
-								className="w-4 h-4"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-								strokeWidth={2}
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4m-4 0a1 1 0 00-1 1v1h6V4a1 1 0 00-1-1m-4 0h4"
-								/>
-							</svg>
-							Clear logs
-						</button>
-					)}
+							onClearLogs(nick);
+							onClose();
+						}}
+						className={`${menuItemClass} text-red-600 dark:text-red-400`}
+					>
+						<Trash2 className="w-4 h-4" />
+						Clear logs
+					</button>
+				)}
 					{showCloseDm && (
 						<button
 							type="button"
 							onClick={() => {
 								onCloseDm();
-								onClose();
-							}}
-							className={menuItemClass}
-						>
-							<svg
-								className="w-4 h-4"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-								strokeWidth={2}
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									d="M6 18L18 6M6 6l12 12"
-								/>
-							</svg>
-							Close DM
-						</button>
-					)}
+							onClose();
+						}}
+						className={menuItemClass}
+					>
+						<X className="w-4 h-4" />
+						Close DM
+					</button>
+				)}
 				</>
 			)}
 		</div>

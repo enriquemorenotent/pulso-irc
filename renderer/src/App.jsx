@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
 	createInitialChatState,
+	createListState,
 	markTargetRead,
 	removeTarget,
 	setActiveTarget,
@@ -31,6 +32,7 @@ import { SetupPanel } from './components/SetupPanel.jsx';
 import { SettingsPanel } from './components/SettingsPanel.jsx';
 import { DmNotesPanel } from './components/DmNotesPanel.jsx';
 import { WhoisModal } from './components/WhoisModal.jsx';
+import { ChannelListModal } from './components/ChannelListModal.jsx';
 import { clearHistoryTarget } from './irc/history.js';
 
 const buildEffectiveSettings = (profile, defaults) => {
@@ -137,6 +139,10 @@ const App = () => {
 	const [activeConnectionId, setActiveConnectionId] = useState(null);
 	const [clientSecrets, setClientSecrets] = useState({});
 	const [whoisState, setWhoisState] = useState(null);
+	const [listModal, setListModal] = useState({
+		open: false,
+		connectionId: null,
+	});
 
 	const {
 		profiles,
@@ -410,6 +416,9 @@ const App = () => {
 		if (connectionId === activeConnectionId) {
 			setActiveConnectionId(null);
 		}
+		if (listModal.open && listModal.connectionId === connectionId) {
+			setListModal({ open: false, connectionId: null });
+		}
 	};
 
 	const handleSelectTarget = useCallback(
@@ -666,6 +675,100 @@ const App = () => {
 		setWhoisState(null);
 	};
 
+	const buildLoadingListState = () =>
+		createListState({ status: 'loading', error: '' });
+
+	const resetListState = (connectionId) => {
+		if (!connectionId) {
+			return false;
+		}
+		if (!connections[connectionId]) {
+			return false;
+		}
+		updateChatState(connectionId, (prev) => ({
+			...prev,
+			list: buildLoadingListState(),
+		}));
+		return true;
+	};
+
+	const canSendList = (connectionId) => {
+		const connection = connections[connectionId];
+		if (!connection) {
+			return false;
+		}
+		if (connection.chatState?.status !== 'connected') {
+			return false;
+		}
+		return Boolean(connection.settings?.connId);
+	};
+
+	const sendListRequest = (connectionId) => {
+		if (!canSendList(connectionId)) {
+			return false;
+		}
+		const connection = connections[connectionId];
+		const connId = connection.settings?.connId;
+		if (!connId) {
+			return false;
+		}
+		sendMessage(connectionId, {
+			type: 'irc_send',
+			connId,
+			line: 'LIST',
+		});
+		return true;
+	};
+
+	const handleOpenChannelList = (connectionId, options = {}) => {
+		if (!connectionId) {
+			return;
+		}
+		setListModal({ open: true, connectionId });
+		const shouldReset = Boolean(options.reset);
+		const shouldSend = Boolean(options.sendList);
+		if (shouldReset) {
+			resetListState(connectionId);
+		}
+		if (shouldSend) {
+			if (shouldReset && !canSendList(connectionId)) {
+				updateChatState(connectionId, (prev) => ({
+					...prev,
+					list: createListState({
+						...(prev.list || {}),
+						status: 'error',
+						error: 'Not connected.',
+					}),
+				}));
+				return;
+			}
+			sendListRequest(connectionId);
+		}
+	};
+
+	const handleCloseChannelList = () => {
+		setListModal({ open: false, connectionId: null });
+	};
+
+	const handleRefreshChannelList = () => {
+		if (!listModal.connectionId) {
+			return;
+		}
+		if (!canSendList(listModal.connectionId)) {
+			updateChatState(listModal.connectionId, (prev) => ({
+				...prev,
+				list: createListState({
+					...(prev.list || {}),
+					status: 'error',
+					error: 'Not connected.',
+				}),
+			}));
+			return;
+		}
+		resetListState(listModal.connectionId);
+		sendListRequest(listModal.connectionId);
+	};
+
 	const handleClearTargetLogs = (connectionId, targetName) => {
 		if (!connectionId || !targetName) {
 			return;
@@ -702,23 +805,59 @@ const App = () => {
 		setUserNote(resolvedActiveId, activeDmNick, trimmed);
 	};
 
+	const joinChannel = (connectionId, channelName) => {
+		if (!connectionId || !channelName) {
+			return;
+		}
+		const connection = connections[connectionId];
+		const connId = connection?.settings?.connId;
+		if (!connId) {
+			return;
+		}
+
+		updateChatState(connectionId, (prev) => {
+			return setActiveTarget(prev, channelName, 'channel');
+		});
+		addStatusNote(connectionId, `Joining ${channelName}...`);
+		sendMessage(connectionId, {
+			type: 'irc_send',
+			connId,
+			line: `JOIN ${channelName}`,
+		});
+	};
+
 	const handleChannelClick = (channelName) => {
 		if (!resolvedActiveId || !channelName) {
 			return;
 		}
-		if (activeChatState.targets[channelName]) {
+		const activeConnectionState = connections[resolvedActiveId]?.chatState;
+		if (activeConnectionState?.targets?.[channelName]) {
 			handleSelectTarget(resolvedActiveId, channelName);
 			return;
 		}
-		updateChatState(resolvedActiveId, (prev) => {
-			return setActiveTarget(prev, channelName, 'channel');
-		});
-		addStatusNote(resolvedActiveId, `Joining ${channelName}...`);
-		activeSendMessage({
-			type: 'irc_send',
-			connId: activeSettings.connId,
-			line: `JOIN ${channelName}`,
-		});
+		joinChannel(resolvedActiveId, channelName);
+	};
+
+	const handleJoinFromList = (channelName) => {
+		if (!channelName) {
+			return;
+		}
+		const connectionId =
+			listModal.connectionId || resolvedActiveId || null;
+		if (!connectionId) {
+			return;
+		}
+		const connectionState = connections[connectionId]?.chatState;
+		if (connectionState?.targets?.[channelName]) {
+			handleSelectTarget(connectionId, channelName);
+			setActiveView('chat');
+			return;
+		}
+		joinChannel(connectionId, channelName);
+		setActiveView('chat');
+		if (connectionId !== activeConnectionId) {
+			setActiveConnectionId(connectionId);
+		}
 	};
 
 	// Friend online notifications
@@ -734,6 +873,30 @@ const App = () => {
 		isBlocked,
 		handleOpenDm
 	);
+
+	const listConnection = listModal.open
+		? connections[listModal.connectionId]
+		: null;
+	const listChatState = listConnection?.chatState || null;
+	const listState = listChatState?.list || {
+		status: 'idle',
+		items: [],
+		total: 0,
+		truncated: false,
+		error: '',
+	};
+	const listJoinedChannels = (() => {
+		if (!listChatState) {
+			return new Set();
+		}
+		const joined = new Set();
+		Object.entries(listChatState.targets || {}).forEach(([name, target]) => {
+			if (target.type === 'channel' && target.joined) {
+				joined.add(name.toLowerCase());
+			}
+		});
+		return joined;
+	})();
 
 	// Message notifications (mentions and DMs)
 	useMessageNotifications(
@@ -816,6 +979,7 @@ const App = () => {
 					onOpenDm={handleOpenDm}
 					onWhois={handleWhois}
 					onClearLogs={handleClearTargetLogs}
+					onOpenChannelList={handleOpenChannelList}
 				/>
 
 				<div className="flex-1 flex flex-col min-w-0 bg-neutral-50 relative dark:bg-neutral-950">
@@ -843,6 +1007,11 @@ const App = () => {
 								addOutgoingMessage={activeAddOutgoing}
 								supportsEcho={supportsEcho}
 								nicknames={activeNicknames}
+								onOpenChannelList={() =>
+									handleOpenChannelList(resolvedActiveId, {
+										reset: true,
+									})
+								}
 							/>
 
 							{showNicklist ? (
@@ -920,6 +1089,24 @@ const App = () => {
 							onClose={handleCloseWhois}
 						>
 							<WhoisModal whois={whoisState} />
+						</Modal>
+					)}
+
+					{listModal.open && (
+						<Modal
+							title={
+								listConnection?.profileName
+									? `Channel List (${listConnection.profileName})`
+									: 'Channel List'
+							}
+							onClose={handleCloseChannelList}
+						>
+							<ChannelListModal
+								listState={listState}
+								joinedChannels={listJoinedChannels}
+								onJoin={handleJoinFromList}
+								onRefresh={handleRefreshChannelList}
+							/>
 						</Modal>
 					)}
 				</div>

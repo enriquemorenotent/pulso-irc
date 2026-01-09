@@ -30,6 +30,7 @@ const useIrcCommands = ({
 	supportsEcho,
 	nicknames = [],
 	onOpenDm,
+	onOpenList,
 }) => {
 	const [messageInput, setMessageInput] = useState('');
 	const historyRef = useRef([]);
@@ -431,6 +432,9 @@ const useIrcCommands = ({
 				shouldClear = true;
 				break;
 			case 'list':
+				if (onOpenList) {
+					onOpenList();
+				}
 				sendMessage({
 					type: 'irc_send',
 					connId: effectiveSettings.connId,

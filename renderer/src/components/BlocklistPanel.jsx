@@ -1,33 +1,6 @@
+import { Ban, Plus, Search, X } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { inputClass } from '../ui/classes.js';
-
-const BlockIcon = () => (
-	<svg
-		className="w-4 h-4"
-		fill="none"
-		viewBox="0 0 24 24"
-		stroke="currentColor"
-		strokeWidth={2}
-	>
-		<path
-			strokeLinecap="round"
-			strokeLinejoin="round"
-			d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
-		/>
-	</svg>
-);
-
-const PlusIcon = () => (
-	<svg
-		className="w-4 h-4"
-		fill="none"
-		viewBox="0 0 24 24"
-		stroke="currentColor"
-		strokeWidth={2}
-	>
-		<path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-	</svg>
-);
 
 const AddBlockForm = ({ onAdd, onCancel }) => {
 	const [nick, setNick] = useState('');
@@ -134,7 +107,7 @@ const BlocklistPanel = ({ blocklist, onBlockUser, onUnblockUser, onClose }) => {
 						onClick={() => setShowAddForm(!showAddForm)}
 						className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-red-600 text-white rounded-lg hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 transition-colors"
 					>
-						<PlusIcon />
+						<Plus className="w-4 h-4" />
 						Block User
 					</button>
 					{onClose && (
@@ -143,19 +116,7 @@ const BlocklistPanel = ({ blocklist, onBlockUser, onUnblockUser, onClose }) => {
 							onClick={onClose}
 							className="p-2 rounded-lg text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:text-neutral-200 dark:hover:bg-neutral-800 transition-colors"
 						>
-							<svg
-								className="w-5 h-5"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-								strokeWidth={2}
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									d="M6 18L18 6M6 6l12 12"
-								/>
-							</svg>
+							<X className="w-5 h-5" />
 						</button>
 					)}
 				</div>
@@ -172,19 +133,7 @@ const BlocklistPanel = ({ blocklist, onBlockUser, onUnblockUser, onClose }) => {
 			{/* Search */}
 			<div className="px-4 py-3 border-b border-neutral-200 dark:border-neutral-700">
 				<div className="relative">
-					<svg
-						className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-						strokeWidth={2}
-					>
-						<path
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-						/>
-					</svg>
+					<Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
 					<input
 						type="text"
 						value={searchQuery}
@@ -215,7 +164,7 @@ const BlocklistPanel = ({ blocklist, onBlockUser, onUnblockUser, onClose }) => {
 							>
 								<div className="flex-shrink-0">
 									<div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-500 dark:text-red-400">
-										<BlockIcon />
+										<Ban className="w-4 h-4" />
 									</div>
 								</div>
 								<div className="flex-1 min-w-0">
@@ -247,19 +196,10 @@ const BlocklistPanel = ({ blocklist, onBlockUser, onUnblockUser, onClose }) => {
 				) : (
 					<div className="flex flex-col items-center justify-center h-full text-center p-8">
 						<div className="w-16 h-16 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mb-4">
-							<svg
+							<Ban
 								className="w-8 h-8 text-neutral-400 dark:text-neutral-500"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
 								strokeWidth={1.5}
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
-								/>
-							</svg>
+							/>
 						</div>
 						<h3 className="text-sm font-medium text-neutral-900 dark:text-white mb-1">
 							{searchQuery

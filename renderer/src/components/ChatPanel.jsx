@@ -1,3 +1,4 @@
+import { AlertTriangle, Send } from 'lucide-react';
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { STATUS_TARGET } from '../irc/state.js';
 import { MessageRow } from './MessageRow.jsx';
@@ -14,6 +15,7 @@ const MessageComposer = ({
 	supportsEcho,
 	nicknames,
 	onOpenDm,
+	onOpenList,
 }) => {
 	const inputRef = useRef(null);
 	const {
@@ -31,6 +33,7 @@ const MessageComposer = ({
 		supportsEcho,
 		nicknames,
 		onOpenDm,
+		onOpenList,
 	});
 
 	useEffect(() => {
@@ -77,19 +80,7 @@ const MessageComposer = ({
 					className="rounded-lg bg-neutral-800 p-2.5 text-white hover:bg-neutral-700 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed outline-none focus:ring-2 focus:ring-offset-1 focus:ring-neutral-500 dark:bg-neutral-600 dark:hover:bg-neutral-500"
 					aria-label="Send message"
 				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						strokeWidth="2"
-						strokeLinecap="round"
-						strokeLinejoin="round"
-						className="w-5 h-5"
-					>
-						<line x1="22" y1="2" x2="11" y2="13"></line>
-						<polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-					</svg>
+					<Send className="w-5 h-5" />
 				</button>
 			</div>
 		</div>
@@ -116,6 +107,7 @@ const ChatPanel = ({
 	addOutgoingMessage,
 	supportsEcho,
 	nicknames,
+	onOpenChannelList,
 }) => {
 	const scrollRef = useRef(null);
 	const isNearBottomRef = useRef(true);
@@ -223,7 +215,7 @@ const ChatPanel = ({
 							</p>
 						)}
 					</div>
-					{!chatState.server && (
+			{!chatState.server && (
 						<div className="flex items-center gap-1.5 text-xs font-medium text-amber-600 bg-amber-50 px-2 py-1 rounded dark:text-amber-400 dark:bg-amber-900/30">
 							<span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
 							Disconnected
@@ -242,19 +234,7 @@ const ChatPanel = ({
 					chatState.status === 'connected' && (
 						<div className="m-4 rounded border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:bg-amber-900/20 dark:border-amber-900/50 dark:text-amber-200">
 							<p className="font-semibold flex items-center gap-2">
-								<svg
-									className="w-4 h-4"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-								>
-									<path
-										strokeLinecap="round"
-										strokeLinejoin="round"
-										strokeWidth="2"
-										d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-									/>
-								</svg>
+								<AlertTriangle className="w-4 h-4" />
 								Loading user list...
 							</p>
 							<p className="mt-1 text-amber-700 dark:text-amber-300">
@@ -341,6 +321,7 @@ const ChatPanel = ({
 				supportsEcho={supportsEcho}
 				nicknames={nicknames}
 				onOpenDm={onOpenDm}
+				onOpenList={onOpenChannelList}
 			/>
 		</section>
 	);

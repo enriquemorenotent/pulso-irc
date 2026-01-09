@@ -1,3 +1,13 @@
+import {
+	Ban,
+	ExternalLink,
+	LogIn,
+	LogOut,
+	Power,
+	ShieldCheck,
+	User,
+	X,
+} from 'lucide-react';
 import { useState, useCallback, useEffect } from 'react';
 import {
 	getIrcColorClasses,
@@ -9,7 +19,6 @@ import {
 	normalizeUrl,
 	splitEntities,
 } from '../irc/message_entities.js';
-import { RoleBadge } from './RoleBadge.jsx';
 
 const useLightbox = () => {
 	const [expanded, setExpanded] = useState(false);
@@ -72,19 +81,7 @@ const EmbeddedImage = ({ src, href = null, onImageLoad = null }) => {
 	if (error) {
 		return (
 			<div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 text-xs">
-				<svg
-					className="w-4 h-4"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke="currentColor"
-				>
-					<path
-						strokeLinecap="round"
-						strokeLinejoin="round"
-						strokeWidth={1.5}
-						d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
-					/>
-				</svg>
+				<Ban className="w-4 h-4" strokeWidth={1.5} />
 				<span>Failed to load image</span>
 			</div>
 		);
@@ -127,19 +124,7 @@ const EmbeddedImage = ({ src, href = null, onImageLoad = null }) => {
 							className="p-1.5 rounded-md bg-black/60 hover:bg-black/80 text-white backdrop-blur-sm transition-colors"
 							title="Open in new tab"
 						>
-							<svg
-								className="w-3.5 h-3.5"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={2}
-									d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-								/>
-							</svg>
+							<ExternalLink className="w-3.5 h-3.5" />
 						</a>
 					</div>
 				)}
@@ -173,19 +158,7 @@ const EmbeddedImage = ({ src, href = null, onImageLoad = null }) => {
 								className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-colors"
 								title="Open in new tab"
 							>
-								<svg
-									className="w-5 h-5"
-									fill="none"
-									viewBox="0 0 24 24"
-									stroke="currentColor"
-								>
-									<path
-										strokeLinecap="round"
-										strokeLinejoin="round"
-										strokeWidth={2}
-										d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-									/>
-								</svg>
+								<ExternalLink className="w-5 h-5" />
 							</a>
 							<button
 								type="button"
@@ -193,19 +166,7 @@ const EmbeddedImage = ({ src, href = null, onImageLoad = null }) => {
 								className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-colors"
 								title="Close"
 							>
-								<svg
-									className="w-5 h-5"
-									fill="none"
-									viewBox="0 0 24 24"
-									stroke="currentColor"
-								>
-									<path
-										strokeLinecap="round"
-										strokeLinejoin="round"
-										strokeWidth={2}
-										d="M6 18L18 6M6 6l12 12"
-									/>
-								</svg>
+								<X className="w-5 h-5" />
 							</button>
 						</div>
 					</div>
@@ -228,19 +189,7 @@ const EmbeddedVideo = ({ src, href = null }) => {
 	if (error) {
 		return (
 			<div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 text-xs">
-				<svg
-					className="w-4 h-4"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke="currentColor"
-				>
-					<path
-						strokeLinecap="round"
-						strokeLinejoin="round"
-						strokeWidth={1.5}
-						d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
-					/>
-				</svg>
+				<Ban className="w-4 h-4" strokeWidth={1.5} />
 				<span>Failed to load preview</span>
 			</div>
 		);
@@ -281,19 +230,7 @@ const EmbeddedVideo = ({ src, href = null }) => {
 							className="p-1.5 rounded-md bg-black/60 hover:bg-black/80 text-white backdrop-blur-sm transition-colors"
 							title="Open in new tab"
 						>
-							<svg
-								className="w-3.5 h-3.5"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={2}
-									d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-								/>
-							</svg>
+							<ExternalLink className="w-3.5 h-3.5" />
 						</a>
 					</div>
 				)}
@@ -329,19 +266,7 @@ const EmbeddedVideo = ({ src, href = null }) => {
 								className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-colors"
 								title="Open in new tab"
 							>
-								<svg
-									className="w-5 h-5"
-									fill="none"
-									viewBox="0 0 24 24"
-									stroke="currentColor"
-								>
-									<path
-										strokeLinecap="round"
-										strokeLinejoin="round"
-										strokeWidth={2}
-										d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-									/>
-								</svg>
+								<ExternalLink className="w-5 h-5" />
 							</a>
 							<button
 								type="button"
@@ -349,19 +274,7 @@ const EmbeddedVideo = ({ src, href = null }) => {
 								className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-colors"
 								title="Close"
 							>
-								<svg
-									className="w-5 h-5"
-									fill="none"
-									viewBox="0 0 24 24"
-									stroke="currentColor"
-								>
-									<path
-										strokeLinecap="round"
-										strokeLinejoin="round"
-										strokeWidth={2}
-										d="M6 18L18 6M6 6l12 12"
-									/>
-								</svg>
+								<X className="w-5 h-5" />
 							</button>
 						</div>
 					</div>
@@ -551,34 +464,62 @@ const MessageRow = ({
 		const symbol = mode?.symbol || '';
 		const nick = mode?.nick || '';
 		const actionText = action === 'add' ? 'gained' : 'lost';
-
-		if (!action || !symbol || !nick) {
-			const fallback = parseIrcFormatting(message.text || '');
-			return (
-				<div className="flex items-baseline gap-4 px-4 py-0.5 text-sm leading-relaxed hover:bg-neutral-50/50 dark:hover:bg-neutral-900/50 group">
-					<MessageTimestamp time={message.time} />
-					<div className="flex-1 min-w-0 break-words whitespace-pre-wrap font-mono text-neutral-500 dark:text-neutral-400">
-						{renderFormattedSegments(fallback, {
-							onChannelClick,
-							linkClass:
-								'underline underline-offset-2 hover:text-blue-700 dark:hover:text-blue-400',
-							channelClass:
-								'underline underline-offset-2 hover:text-blue-700 cursor-pointer dark:hover:text-blue-400',
-						})}
-					</div>
-				</div>
-			);
-		}
+		const modeText =
+			message.text || `${nick} ${actionText} ${symbol}`.trim();
+		const pieces = splitEntities(modeText);
+		const textColor = 'text-neutral-500 dark:text-neutral-500';
+		const indicatorColor = 'text-blue-600 dark:text-blue-400';
 
 		return (
 			<div className="flex items-baseline gap-4 px-4 py-0.5 text-sm leading-relaxed hover:bg-neutral-50/50 dark:hover:bg-neutral-900/50 group">
 				<MessageTimestamp time={message.time} />
-				<div className="flex-1 min-w-0 break-words whitespace-pre-wrap text-neutral-500 dark:text-neutral-500">
-					<span className="inline-flex items-center gap-2">
-						<span>{nick}</span>
-						<span>{actionText}</span>
-						<RoleBadge symbol={symbol} />
+				<div
+					className={`flex-1 min-w-0 wrap-break-words whitespace-pre-wrap ${textColor} opacity-70`}
+				>
+					<span
+						aria-hidden="true"
+						className={`inline-flex items-center justify-center w-4 h-4 mr-2 opacity-100 dark:opacity-80 align-middle relative -top-px ${indicatorColor}`}
+					>
+						<ShieldCheck className="w-4 h-4" strokeWidth={2.4} />
 					</span>
+					{pieces.map((piece, index) => {
+						if (piece.type === 'link') {
+							const href = normalizeUrl(piece.value);
+							return (
+								<a
+									key={`${piece.value}-${index}`}
+									href={href}
+									target="_blank"
+									rel="noreferrer"
+									className="underline underline-offset-2 hover:text-blue-700 dark:hover:text-blue-400"
+								>
+									{piece.value}
+								</a>
+							);
+						}
+
+						if (piece.type === 'channel') {
+							return (
+								<button
+									key={`${piece.value}-${index}`}
+									type="button"
+									onClick={() =>
+										onChannelClick &&
+										onChannelClick(piece.value)
+									}
+									className="underline underline-offset-2 hover:text-blue-700 cursor-pointer dark:hover:text-blue-400"
+								>
+									{piece.value}
+								</button>
+							);
+						}
+
+						return (
+							<span key={`${piece.value}-${index}`}>
+								{piece.value}
+							</span>
+						);
+					})}
 				</div>
 			</div>
 		);
@@ -613,64 +554,16 @@ const MessageRow = ({
 						className={`inline-flex items-center justify-center w-4 h-4 mr-2 opacity-100 dark:opacity-80 align-middle relative -top-px ${indicatorColor}`}
 					>
 						{message.type === 'join' && (
-							<svg
-								className="w-4 h-4"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={2.4}
-									d="M4.5 4.5v15M9 12h10m0 0-3-3m3 3-3 3"
-								/>
-							</svg>
+							<LogIn className="w-4 h-4" strokeWidth={2.4} />
 						)}
 						{message.type === 'part' && (
-							<svg
-								className="w-4 h-4"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={2.4}
-									d="M19.5 4.5v15M15 12H5m0 0 3-3m-3 3 3 3"
-								/>
-							</svg>
+							<LogOut className="w-4 h-4" strokeWidth={2.4} />
 						)}
 						{message.type === 'quit' && (
-							<svg
-								className="w-4 h-4"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={2.4}
-									d="M12 3v7m-4.6-3.1a7.5 7.5 0 109.2 0"
-								/>
-							</svg>
+							<Power className="w-4 h-4" strokeWidth={2.4} />
 						)}
 						{message.type === 'nick' && (
-							<svg
-								className="w-4 h-4"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={2.4}
-									d="M7 7h10M7 12h10M7 17h6"
-								/>
-							</svg>
+							<User className="w-4 h-4" strokeWidth={2.4} />
 						)}
 					</span>
 					{pieces.map((piece, index) => {

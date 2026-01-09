@@ -1,107 +1,8 @@
+import { AlertCircle, Hash, Power, Server, User, Users, X } from 'lucide-react';
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { isAutoJoinEnabled } from '../irc/auto_join.js';
 import { getNickColorClasses } from '../irc/formatting.js';
 import { NickContextMenu } from './NickContextMenu.jsx';
-
-const Icons = {
-	Server: ({ className }) => (
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			strokeWidth="2"
-			strokeLinecap="round"
-			strokeLinejoin="round"
-			className={className}
-		>
-			<rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
-			<rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
-			<line x1="6" y1="6" x2="6.01" y2="6"></line>
-			<line x1="6" y1="18" x2="6.01" y2="18"></line>
-		</svg>
-	),
-	Hash: ({ className }) => (
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			strokeWidth="2"
-			strokeLinecap="round"
-			strokeLinejoin="round"
-			className={className}
-		>
-			<line x1="4" y1="9" x2="20" y2="9"></line>
-			<line x1="4" y1="15" x2="20" y2="15"></line>
-			<line x1="10" y1="3" x2="8" y2="21"></line>
-			<line x1="16" y1="3" x2="14" y2="21"></line>
-		</svg>
-	),
-	User: ({ className }) => (
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			strokeWidth="2"
-			strokeLinecap="round"
-			strokeLinejoin="round"
-			className={className}
-		>
-			<path d="M20 21a8 8 0 0 0-16 0"></path>
-			<circle cx="12" cy="7" r="4"></circle>
-		</svg>
-	),
-	Power: ({ className }) => (
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			strokeWidth="2"
-			strokeLinecap="round"
-			strokeLinejoin="round"
-			className={className}
-		>
-			<path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
-			<line x1="12" y1="2" x2="12" y2="12"></line>
-		</svg>
-	),
-	AlertCircle: ({ className }) => (
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			strokeWidth="2"
-			strokeLinecap="round"
-			strokeLinejoin="round"
-			className={className}
-		>
-			<circle cx="12" cy="12" r="10"></circle>
-			<line x1="12" y1="8" x2="12" y2="12"></line>
-			<line x1="12" y1="16" x2="12.01" y2="16"></line>
-		</svg>
-	),
-	Users: ({ className }) => (
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			strokeWidth="2"
-			strokeLinecap="round"
-			strokeLinejoin="round"
-			className={className}
-		>
-			<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-			<circle cx="9" cy="7" r="4" />
-			<path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-			<path d="M16 3.13a4 4 0 0 1 0 7.75" />
-		</svg>
-	),
-};
 
 const SHOW_OFFLINE_FRIENDS_KEY = 'pulso_show_offline_friends';
 
@@ -221,7 +122,7 @@ const OnlineFriendsList = ({
 		<div className="border-t border-neutral-200 dark:border-neutral-800">
 			<div className="h-10 px-4 flex items-center justify-between bg-neutral-50/50 dark:bg-neutral-900/50">
 				<div className="flex items-center gap-2">
-					<Icons.Users className="w-3.5 h-3.5 text-neutral-400 dark:text-neutral-500" />
+					<Users className="w-3.5 h-3.5 text-neutral-400 dark:text-neutral-500" />
 					<span className="text-[11px] font-bold uppercase tracking-widest text-neutral-400 select-none dark:text-neutral-500">
 						Friends
 					</span>
@@ -380,6 +281,18 @@ const ConnectionItem = ({
 				<button
 					type="button"
 					onClick={() => onSelect(connection.id, statusTarget)}
+					onContextMenu={(event) => {
+						if (!onTargetContextMenu) {
+							return;
+						}
+						onTargetContextMenu(
+							event,
+							connection.id,
+							statusTarget,
+							'server',
+							false
+						);
+					}}
 					className={`
                         w-full flex items-center justify-between px-2 py-1.5 rounded-md text-sm transition-all group cursor-pointer
                         ${
@@ -398,11 +311,11 @@ const ConnectionItem = ({
 							}`}
 						>
 							{connection.chatState.status === 'error' ? (
-								<Icons.AlertCircle
+								<AlertCircle
 									className={`w-3.5 h-3.5 ${statusInfo.color}`}
 								/>
 							) : (
-								<Icons.Server className="w-3.5 h-3.5" />
+								<Server className="w-3.5 h-3.5" />
 							)}
 							<div
 								className={`absolute bottom-0 right-0 w-1.5 h-1.5 rounded-full ring-1 ring-white dark:ring-neutral-800 ${statusInfo.bg}`}
@@ -430,7 +343,7 @@ const ConnectionItem = ({
 							className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400 rounded text-neutral-400 dark:text-neutral-500 transition-all cursor-pointer"
 							title="Disconnect"
 						>
-							<Icons.Power className="w-3 h-3" />
+							<Power className="w-3 h-3" />
 						</div>
 					)}
 				</button>
@@ -485,7 +398,7 @@ const ConnectionItem = ({
 						>
 							<div className="flex items-center gap-2 overflow-hidden pl-1">
 								{isChannel ? (
-									<Icons.Hash
+									<Hash
 										title={
 											autoJoinEnabled
 												? 'Auto-join'
@@ -500,7 +413,7 @@ const ConnectionItem = ({
 										}`}
 									/>
 								) : (
-									<Icons.User
+									<User
 										className={`w-3.5 h-3.5 ${
 											isFriendDm
 												? isActiveTarget
@@ -531,19 +444,7 @@ const ConnectionItem = ({
 										className="opacity-0 group-hover:opacity-100 p-1 rounded text-neutral-400 hover:text-red-500 hover:bg-red-50 dark:text-neutral-500 dark:hover:text-red-400 dark:hover:bg-red-900/30 transition-all"
 										title="Close DM"
 									>
-										<svg
-											className="w-3 h-3"
-											fill="none"
-											viewBox="0 0 24 24"
-											stroke="currentColor"
-											strokeWidth={2}
-										>
-											<path
-												strokeLinecap="round"
-												strokeLinejoin="round"
-												d="M6 18L18 6M6 6l12 12"
-											/>
-										</svg>
+										<X className="w-3 h-3" />
 									</button>
 								)}
 							</div>
@@ -574,6 +475,7 @@ const ConnectionsSidebar = ({
 	onUnblockUser,
 	onWhois,
 	onClearLogs,
+	onOpenChannelList,
 }) => {
 	const [contextMenu, setContextMenu] = useState(null);
 	const menuRef = useRef(null);
@@ -581,6 +483,7 @@ const ConnectionsSidebar = ({
 	const showPart = Boolean(onPartChannel);
 	const showCloseDm = Boolean(onCloseDm);
 	const showClearLogs = Boolean(onClearLogs);
+	const showChannelList = Boolean(onOpenChannelList);
 	const [showOfflineFriends, setShowOfflineFriends] = useState(() => {
 		if (typeof window === 'undefined') {
 			return false;
@@ -716,6 +619,7 @@ const ConnectionsSidebar = ({
 		targetType,
 		autoJoinEnabled
 	) => {
+		const hasServerActions = targetType === 'server' && showChannelList;
 		const hasChannelActions =
 			targetType === 'channel' &&
 			(showAutoJoin || showPart || showClearLogs);
@@ -740,7 +644,7 @@ const ConnectionsSidebar = ({
 				showCloseDm ||
 				canDmClearLogs);
 
-		if (!hasChannelActions && !hasDmActions) {
+		if (!hasChannelActions && !hasDmActions && !hasServerActions) {
 			return;
 		}
 
@@ -751,7 +655,11 @@ const ConnectionsSidebar = ({
 		const menuRowHeight = 44;
 		const menuHeaderHeight = 36;
 		const menuRows =
-			targetType === 'channel'
+			targetType === 'server'
+				? showChannelList
+					? 1
+					: 0
+				: targetType === 'channel'
 				? (showPart ? 1 : 0) +
 				  (showClearLogs ? 1 : 0) +
 				  (showAutoJoin ? 1 : 0)
@@ -823,6 +731,22 @@ const ConnectionsSidebar = ({
 		closeMenu();
 	};
 
+	const handleOpenChannelList = () => {
+		if (!contextMenu || !onOpenChannelList) {
+			return;
+		}
+
+		if (contextMenu.targetType !== 'server') {
+			return;
+		}
+
+		onOpenChannelList(contextMenu.connectionId, {
+			sendList: true,
+			reset: true,
+		});
+		closeMenu();
+	};
+
 	return (
 		<aside className="h-full w-64 bg-neutral-50 border-r border-neutral-200 flex flex-col font-sans relative dark:bg-neutral-900 dark:border-neutral-800">
 			<div className="h-12 px-4 flex items-center border-b border-neutral-200/50 bg-neutral-50/50 backdrop-blur-sm sticky top-0 z-10 dark:border-neutral-800 dark:bg-neutral-900/50">
@@ -855,7 +779,7 @@ const ConnectionsSidebar = ({
 				) : (
 					<div className="px-4 py-10 text-center">
 						<div className="w-10 h-10 mx-auto bg-neutral-200/50 rounded-lg flex items-center justify-center mb-3 dark:bg-neutral-800">
-							<Icons.Server className="w-5 h-5 text-neutral-400 dark:text-neutral-500" />
+							<Server className="w-5 h-5 text-neutral-400 dark:text-neutral-500" />
 						</div>
 						<p className="text-sm font-medium text-neutral-600 dark:text-neutral-300">
 							No connections
@@ -928,6 +852,16 @@ const ConnectionsSidebar = ({
 						className="fixed z-50 min-w-[200px] rounded-md border border-neutral-200 bg-white shadow-lg py-1 text-sm text-neutral-700 dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-200"
 						style={{ top: contextMenu.y, left: contextMenu.x }}
 					>
+						{contextMenu.targetType === 'server' &&
+						showChannelList ? (
+							<button
+								type="button"
+								onClick={handleOpenChannelList}
+								className="w-full text-left px-3 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-700"
+							>
+								Channel list
+							</button>
+						) : null}
 						{contextMenu.targetType === 'channel' && showPart ? (
 							<button
 								type="button"

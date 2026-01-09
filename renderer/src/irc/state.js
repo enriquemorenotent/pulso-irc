@@ -3,6 +3,7 @@ import { ROLE_MODE_MAP, ROLE_ORDER, getRoleText } from './roles.js';
 
 const STATUS_TARGET = '*status';
 const MAX_MESSAGES = 500;
+const LIST_MAX_ITEMS = 2000;
 const PREFIX_ORDER = [...ROLE_ORDER, ''];
 
 const createId = () => {
@@ -23,6 +24,15 @@ const createTarget = (name, type = 'channel') => ({
 	lastReadId: null,
 	namesReceived: false,
 	joined: type !== 'channel',
+});
+
+const createListState = (overrides = {}) => ({
+	status: 'idle',
+	items: [],
+	total: 0,
+	truncated: false,
+	error: '',
+	...overrides,
 });
 
 const isChannelName = (name) =>
@@ -574,9 +584,7 @@ const applyIrcEvent = (state, event) => {
 				time: timestamp,
 				type: 'join',
 				text:
-					nick === me
-						? `You joined ${channel}`
-						: `${nick} joined ${channel}`,
+					nick === me ? 'You joined' : `${nick} joined`,
 			},
 			'channel',
 			{ incrementUnread: false }
@@ -624,7 +632,7 @@ const applyIrcEvent = (state, event) => {
 				id: createId(),
 				time: timestamp,
 				type: 'part',
-				text: `${nick} left ${channel}`,
+				text: `${nick} left`,
 			},
 			'channel',
 			{ incrementUnread: false }
@@ -796,6 +804,65 @@ const applyIrcEvent = (state, event) => {
 		}));
 	}
 
+	if (command === '321') {
+		return {
+			...state,
+			list: createListState({ status: 'loading', error: '' }),
+		};
+	}
+
+	if (command === '322') {
+		const channel = params[1];
+		if (!channel) {
+			return state;
+		}
+
+		const users = Number.parseInt(params[2], 10);
+		const topic = params[3] || text || '';
+		const listState = state.list || createListState();
+		const total = listState.total + 1;
+		let items = listState.items;
+		let truncated = listState.truncated;
+
+		if (!truncated) {
+			if (items.length >= LIST_MAX_ITEMS) {
+				truncated = true;
+			} else {
+				items = [
+					...items,
+					{
+						channel,
+						users: Number.isNaN(users) ? null : users,
+						topic: stripIrcFormatting(topic),
+					},
+				];
+			}
+		}
+
+		return {
+			...state,
+			list: {
+				...listState,
+				status: listState.status === 'idle' ? 'loading' : listState.status,
+				items,
+				total,
+				truncated,
+				error: '',
+			},
+		};
+	}
+
+	if (command === '323') {
+		const listState = state.list || createListState();
+		return {
+			...state,
+			list: {
+				...listState,
+				status: 'complete',
+			},
+		};
+	}
+
 	if (/^[45]\d{2}$/.test(command)) {
 		const textParts = params.slice(1).filter(Boolean);
 		const messageText = textParts.join(' ');
@@ -832,6 +899,18 @@ const applyIrcEvent = (state, event) => {
 				},
 				targetType
 			);
+		}
+
+		const listState = nextState.list || createListState();
+		if (listState.status === 'loading') {
+			nextState = {
+				...nextState,
+				list: {
+					...listState,
+					status: 'error',
+					error: finalText || 'Channel list failed.',
+				},
+			};
 		}
 
 		return nextState;
@@ -957,6 +1036,7 @@ const createInitialChatState = (nick = '') => ({
 	me: nick,
 	server: '',
 	capEnabled: [],
+	list: createListState(),
 	targets: {
 		[STATUS_TARGET]: createTarget(STATUS_TARGET, 'status'),
 	},
@@ -999,6 +1079,7 @@ const clearChannelUsersOnDisconnect = (state) => {
 	return {
 		...state,
 		targets: nextTargets,
+		list: createListState(),
 	};
 };
 
@@ -1010,6 +1091,7 @@ export {
 	clearChannelUsersOnDisconnect,
 	clearTargetMessages,
 	createInitialChatState,
+	createListState,
 	ensureTarget,
 	removeTarget,
 	markTargetRead,

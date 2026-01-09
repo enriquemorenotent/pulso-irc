@@ -1,20 +1,5 @@
+import { Pencil } from 'lucide-react';
 import { inputClass, labelClass } from '../ui/classes.js';
-
-const EditIcon = ({ className }) => (
-	<svg
-		xmlns="http://www.w3.org/2000/svg"
-		viewBox="0 0 24 24"
-		fill="none"
-		stroke="currentColor"
-		strokeWidth="2"
-		strokeLinecap="round"
-		strokeLinejoin="round"
-		className={className}
-	>
-		<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-		<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-	</svg>
-);
 
 const FormSection = ({ title, children }) => (
 	<div className="space-y-4">
@@ -43,7 +28,7 @@ const SetupOverridesCard = ({
 			<div className="flex items-center justify-between px-6 py-4 border-b border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50">
 				<div className="flex items-center gap-3">
 					<div className="flex items-center justify-center w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-900/40">
-						<EditIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+						<Pencil className="w-4 h-4 text-blue-600 dark:text-blue-400" />
 					</div>
 					<div>
 						<h2 className="text-sm font-semibold text-neutral-800 dark:text-neutral-100">

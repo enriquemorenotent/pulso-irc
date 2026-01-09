@@ -16,6 +16,7 @@ npm run dev
 - Connects to the embedded IRC engine described in `docs/gateway.md`.
 - Starts with a server list and connect flow, plus a separate profile management view.
 - Shows messages with basic IRC formatting and a live nicklist for channels.
+- Shows channel list (LIST) results in a searchable, sortable modal with quick join, refresh, and error feedback (also via server context menu).
 - Shows role badges in the channel user list instead of raw prefix symbols.
 - Linkifies URLs in chat and status messages.
 - Channel names in messages are clickable and join/switch on click.
@@ -89,6 +90,7 @@ Using `/msg` or `/query` opens a DM tab for the target nick.
 ## Styling
 Tailwind CSS is used for layout. `src/index.css` sets the base fonts and
 background for the client.
+Icons use Lucide (`lucide-react`).
 
 ## Message rendering
 Links to images in chat messages render inline previews (ESC closes the image modal), and gifv links render as looping video previews. Inline previews can be disabled in Settings.
