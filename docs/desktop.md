@@ -9,8 +9,10 @@ Electron main process. The renderer talks to it over IPC.
 - `renderer/src/irc/state/events/` groups IRC event handlers by command type.
 - `renderer/src/irc/selectors.js` collects renderer-facing derived state helpers.
 - `renderer/src/app/` hosts app-level hooks and orchestration helpers.
+- `renderer/src/app/useCommandPalette.js` manages command palette state and actions.
 - `renderer/src/app/layout/` builds layout props for header/sidebar/panels.
 - `renderer/src/components/AppLayout.jsx` renders the main application layout.
+- `renderer/src/components/CommandPalette.jsx` handles the command palette overlay.
 - `renderer/src/components/ConnectionsSidebar/` hosts sidebar subcomponents.
 - `renderer/src/components/SettingsPanel/` splits settings sections.
 - `renderer/src/components/messages/` hosts message row media helpers.

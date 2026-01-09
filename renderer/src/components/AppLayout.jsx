@@ -11,6 +11,7 @@ import { SettingsPanel } from './SettingsPanel.jsx';
 import { DmNotesPanel } from './DmNotesPanel.jsx';
 import { WhoisModal } from './WhoisModal.jsx';
 import { ChannelListModal } from './ChannelListModal.jsx';
+import { CommandPalette } from './CommandPalette.jsx';
 
 const AppLayout = ({
 	headerProps,
@@ -34,6 +35,7 @@ const AppLayout = ({
 	listConnection,
 	channelListProps,
 	closeChannelList,
+	commandPaletteProps,
 }) => {
 	return (
 		<main className="h-screen w-screen flex flex-col bg-white dark:bg-neutral-950 overflow-hidden">
@@ -104,6 +106,7 @@ const AppLayout = ({
 					)}
 				</div>
 			</div>
+			<CommandPalette {...commandPaletteProps} />
 		</main>
 	);
 };
