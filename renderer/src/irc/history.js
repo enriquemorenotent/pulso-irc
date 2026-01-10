@@ -1,4 +1,5 @@
 import { ensureTarget, STATUS_TARGET } from './state.js';
+import { isChannelName } from './state/utils.js';
 
 const HISTORY_KEY = 'pulso_history_v1';
 const MESSAGE_LIMIT = 300;
@@ -162,11 +163,12 @@ const clearHistoryTarget = (connectionId, host, targetName) => {
 	saveStore(store);
 };
 
-const applyHistory = (state, history) => {
+const applyHistory = (state, history, options = {}) => {
 	if (!history || !history.targets) {
 		return state;
 	}
 
+	const includeDms = options.includeDms !== false;
 	const targetOrder =
 		Array.isArray(history.order) && history.order.length
 			? history.order
@@ -184,7 +186,11 @@ const applyHistory = (state, history) => {
 			return;
 		}
 
-		const type = entry.type === 'dm' ? 'dm' : 'channel';
+		const isDm = entry.type === 'dm' || (!entry.type && !isChannelName(name));
+		if (!includeDms && isDm) {
+			return;
+		}
+		const type = isDm ? 'dm' : 'channel';
 		nextState = ensureTarget(nextState, name, type);
 
 		const messages = entry.messages.slice(-MESSAGE_LIMIT);
@@ -205,6 +211,7 @@ const applyHistory = (state, history) => {
 					lastReadId,
 					// Explicitly keep namesReceived: false to indicate users need refresh
 					namesReceived: false,
+					historyLoaded: true,
 				},
 			},
 		};
@@ -213,9 +220,57 @@ const applyHistory = (state, history) => {
 	return nextState;
 };
 
+const applyHistoryTarget = (state, history, targetName, typeOverride = '') => {
+	if (!targetName) {
+		return state;
+	}
+
+	const entry = history?.targets?.[targetName];
+	const inferredIsDm =
+		typeOverride === 'dm' ||
+		(entry?.type === 'dm' || (!entry?.type && !isChannelName(targetName)));
+	const type = typeOverride || (inferredIsDm ? 'dm' : 'channel');
+
+	let nextState = ensureTarget(state, targetName, type);
+	const target = nextState.targets[targetName];
+	const existingMessages = Array.isArray(target.messages) ? target.messages : [];
+	let nextMessages = existingMessages;
+	let nextLastReadId = target.lastReadId || null;
+
+	if (entry && Array.isArray(entry.messages) && entry.messages.length) {
+		const historyMessages = entry.messages.slice(-MESSAGE_LIMIT);
+		const historyIds = new Set(historyMessages.map((msg) => msg.id));
+		const merged = [
+			...historyMessages,
+			...existingMessages.filter((msg) => !historyIds.has(msg.id)),
+		];
+		nextMessages =
+			merged.length > MESSAGE_LIMIT
+				? merged.slice(-MESSAGE_LIMIT)
+				: merged;
+		nextLastReadId = historyMessages[historyMessages.length - 1]?.id || null;
+	}
+
+	nextState = {
+		...nextState,
+		targets: {
+			...nextState.targets,
+			[targetName]: {
+				...target,
+				messages: nextMessages,
+				lastReadId: nextLastReadId,
+				historyLoaded: true,
+			},
+		},
+	};
+
+	return nextState;
+};
+
 export {
 	MESSAGE_LIMIT,
 	applyHistory,
+	applyHistoryTarget,
 	clearHistoryTarget,
 	loadHistory,
 	persistHistory,

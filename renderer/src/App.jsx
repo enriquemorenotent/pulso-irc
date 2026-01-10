@@ -143,6 +143,7 @@ const App = () => {
 			selectedSecrets: profileState.selectedSecrets,
 			connect,
 			disconnect,
+			connections,
 			updateChatState,
 			setActiveConnectionId,
 			setActiveView,

@@ -76,7 +76,7 @@ const createConnectionLifecycle = ({
 		);
 		connectedAtRef.current[connectionId] = Date.now();
 		const history = loadHistory(connectionId, settings.host);
-		const initial = applyHistory(baseState, history);
+		const initial = applyHistory(baseState, history, { includeDms: false });
 		pendingJoinsRef.current[connectionId] = new Set();
 		nickRetryRef.current[connectionId] = createNickRetryState(
 			settings.nick,
