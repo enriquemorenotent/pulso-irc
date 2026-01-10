@@ -52,6 +52,7 @@ const App = () => {
 	const friendsApi = useFriends();
 	const {
 		getFriend,
+		isBlocked,
 		getBlockedUser,
 		updateFriend,
 		updateBlockedUser,
@@ -81,7 +82,7 @@ const App = () => {
 		updateChatState,
 		addStatusNote,
 		flushHistorySave,
-	} = useConnections({ onIrcEvent: handleIrcEvent });
+	} = useConnections({ onIrcEvent: handleIrcEvent, isBlocked });
 	const {
 		listModal,
 		listConnection,

@@ -1,8 +1,8 @@
 # IPC <-> IRC Engine Schema (Draft v1)
 
-All messages are JSON objects. Timestamps are RFC3339 UTC strings.
+All messages are JSON objects. Engine timestamps are RFC3339 UTC strings.
 
-## Envelope (all messages)
+## Envelope (engine -> renderer)
 ```json
 {
   "type": "string",
@@ -10,6 +10,15 @@ All messages are JSON objects. Timestamps are RFC3339 UTC strings.
   "time": "2026-01-04T12:34:56Z",
   "connId": "string (required for network-scoped messages)",
   "requestId": "string (optional, echoes client request)"
+}
+```
+
+## Envelope (renderer -> engine)
+```json
+{
+  "type": "string",
+  "connId": "string (required for network-scoped messages)",
+  "requestId": "string (optional)"
 }
 ```
 
@@ -38,10 +47,6 @@ The renderer can send `connect` immediately after `hello`.
   "clientKey": "base64 (EXTERNAL only)",
   "caps": [
     "cap-notify",
-    "message-tags",
-    "server-time",
-    "batch",
-    "labeled-response",
     "echo-message",
     "extended-join",
     "away-notify",
@@ -74,7 +79,7 @@ The renderer can send `connect` immediately after `hello`.
   "tags": { "key": "value" },
   "target": "#channel|nick",
   "text": "string",
-  "serverTime": "RFC3339",
+  "serverTime": "RFC3339 (server tag when available, otherwise gateway time)",
   "batchId": "string (optional)",
   "labeledResponse": "string (optional)"
 }

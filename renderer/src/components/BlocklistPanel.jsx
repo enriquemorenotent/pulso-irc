@@ -147,9 +147,8 @@ const BlocklistPanel = ({ blocklist, onBlockUser, onUnblockUser, onClose }) => {
 			{/* Info banner */}
 			<div className="px-4 py-3 bg-amber-50 dark:bg-amber-900/20 border-b border-amber-100 dark:border-amber-900/30">
 				<p className="text-xs text-amber-700 dark:text-amber-300">
-					<strong>Note:</strong> Blocked users will have their
-					messages hidden from your view. This is a client-side
-					feature.
+					<strong>Note:</strong> New messages from blocked users are
+					hidden. Existing logs remain visible.
 				</p>
 			</div>
 

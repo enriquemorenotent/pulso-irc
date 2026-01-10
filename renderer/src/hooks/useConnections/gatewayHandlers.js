@@ -15,6 +15,23 @@ import {
 	shouldSuppressHistory,
 } from './helpers.js';
 
+const shouldSuppressBlockedMessage = (message, isBlocked) => {
+	if (!isBlocked || !message) {
+		return false;
+	}
+
+	if (message.command !== 'PRIVMSG' && message.command !== 'NOTICE') {
+		return false;
+	}
+
+	const fromNick = message.prefix?.nick;
+	if (!fromNick) {
+		return false;
+	}
+
+	return isBlocked(fromNick);
+};
+
 const createGatewayMessageHandler = ({
 	connectionId,
 	settings,
@@ -24,6 +41,7 @@ const createGatewayMessageHandler = ({
 	updateChatState,
 	addStatusNote,
 	onIrcEventRef,
+	isBlocked,
 	pendingJoinsRef,
 	nickRetryRef,
 	connectedAtRef,
@@ -135,6 +153,10 @@ const createGatewayMessageHandler = ({
 			HISTORY_SUPPRESSED_COMMANDS.has(message.command) &&
 			shouldSuppressHistory(message, connectedAt)
 		) {
+			return;
+		}
+
+		if (shouldSuppressBlockedMessage(message, isBlocked)) {
 			return;
 		}
 		if (message.command === '433') {

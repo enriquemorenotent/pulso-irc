@@ -17,7 +17,7 @@ import { createHistoryManager } from './useConnections/history.js';
 import { clearConnectionRefs } from './useConnections/cleanup.js';
 import { createConnectionLifecycle } from './useConnections/lifecycle.js';
 
-const useConnections = ({ onIrcEvent }) => {
+const useConnections = ({ onIrcEvent, isBlocked }) => {
 	const [connections, setConnections] = useState({});
 	const wsRef = useRef({});
 	const pendingJoinsRef = useRef({});
@@ -111,6 +111,7 @@ const useConnections = ({ onIrcEvent }) => {
 			getNickRetryRef: () => nickRetryRef,
 			getConnectedAtRef: () => connectedAtRef,
 			getOnIrcEventRef: () => onIrcEventRef,
+			isBlocked,
 			addStatusNote,
 			updateChatState,
 			sendMessage,

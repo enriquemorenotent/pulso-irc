@@ -45,8 +45,6 @@ supporting core IRCv3 capabilities and local-only persistence.
 
 ## Deferred IRCv3 Capabilities (post-v1)
 - message-tags
-- server-time
-- batch
 - labeled-response
 
 ## Security Constraints (Non-negotiable)
@@ -68,6 +66,10 @@ supporting core IRCv3 capabilities and local-only persistence.
 - Plugin system
 - Theme marketplace
 
+## Explicitly rejected (do not implement)
+- Server-provided history playback (IRCv3 server-time/batch backlogs).
+- Highlights/mentions rules.
+
 ## Feature Matrix (v1)
 Legend: R = required, O = optional, N = not in v1.
 
@@ -82,10 +84,10 @@ Legend: R = required, O = optional, N = not in v1.
 - F8 CTCP ACTION/PING/VERSION: O
 - F9 mIRC formatting (bold/italic/underline/colors; messages only, topics stripped to plain text; colors mapped to theme-aware Tailwind palette utilities): R
 - F10 Scrollback + full-text search: O
-- F11 Highlights/mentions rules: O
+- F11 Highlights/mentions rules: N
 - F12 Desktop notifications + sound: O
 - F13 Ignore/mute rules: O
-- F14 Local export of logs (download): N
+- F14 Local export of logs (download): O
 - F15 Per-channel settings (notify, mute, highlight): O
 - F16 Multi-tab or split-view UI for channels/DMs: O
 - F17 Auto-join list configurable per profile (profile editor + channel context menu + sidebar indicator): R

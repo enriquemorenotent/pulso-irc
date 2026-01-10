@@ -32,14 +32,20 @@ Electron main process. The renderer talks to it over IPC.
 ## Install
 ```bash
 npm install
+npm install --prefix renderer
 ```
 
 ## Development
 ```bash
 npm run dev
 ```
-This starts the Vite dev server and launches Electron.
+This starts the Vite dev server and launches Electron from the repo root.
 Refreshing the renderer window closes active IRC sessions so nicks are released.
+
+Renderer-only dev (Vite only):
+```bash
+npm --prefix renderer run dev
+```
 
 ## Build (Linux)
 ```bash
@@ -52,7 +58,7 @@ GitHub Actions runs dependency audits, gateway tests, renderer lint/build, and
 prepares the Electron bundle on pushes and pull requests.
 
 ## Engine defaults
-- `ALLOW_ANY_IRC_HOST=true`
+- `ALLOW_ANY_IRC_HOST=true` (or leave `ALLOWED_IRC_HOSTS` empty to allow any host)
 - `MAX_CONNECTIONS_PER_CLIENT=4`
 - `MAX_COMMANDS_PER_SECOND=20`
 

@@ -1,14 +1,16 @@
 # Pulso IRC Desktop Renderer (Frontend)
 
-## Development
+## Development (renderer only)
 ```bash
 npm install
 npm run dev
 ```
 The dev server runs on http://localhost:4317 by default.
 
-For a full app experience (including the embedded IRC engine), run:
+For a full app experience (including the embedded IRC engine), run from the repo root:
 ```bash
+npm install
+npm install --prefix renderer
 npm run dev
 ```
 
@@ -27,6 +29,7 @@ npm run dev
 - Friend DM tabs show a colored user icon.
 - Online friends are grouped under network headers in the sidebar, with a toggle to show offline friends.
 - DM tabs in the sidebar have a quick close button and a right-click menu with friend/block actions.
+- New messages from blocked users are hidden (existing logs remain).
 - DM tabs dim when the nick is not seen in a channel on that connection.
 - Channel and DM tabs can clear their local logs from the right-click menu.
 - Sends a local echo for outgoing DM messages when the server does not support echo-message.
