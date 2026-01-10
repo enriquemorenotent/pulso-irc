@@ -24,6 +24,7 @@ const ChannelListTable = ({
 	onSort,
 	joinedChannels,
 	onJoin,
+	canJoin,
 }) => {
 	const listRef = useRef(null);
 	const [scrollTop, setScrollTop] = useState(0);
@@ -139,9 +140,14 @@ const ChannelListTable = ({
 											<button
 												type="button"
 												onClick={() => onJoin && onJoin(channel)}
-												disabled={!channel || isJoined}
+												disabled={!channel || isJoined || canJoin === false}
+												title={
+													canJoin === false
+														? 'Connect to join channels'
+														: undefined
+												}
 												className={`inline-flex items-center justify-center rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
-													isJoined
+													isJoined || canJoin === false
 														? 'bg-neutral-200 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-500 cursor-not-allowed'
 														: 'bg-blue-600 text-white hover:bg-blue-500 dark:bg-blue-500 dark:hover:bg-blue-400'
 												}`}

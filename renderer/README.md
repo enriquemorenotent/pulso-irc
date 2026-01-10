@@ -48,7 +48,7 @@ npm run dev
 - Shows a "New messages" divider at the last read position when returning to a channel/DM.
 - Switching channels or DMs focuses the message input automatically.
 - Disconnect keeps the server and its tabs in the sidebar; closing removes it (both are in the server context menu; the power icon is a disconnect shortcut).
-- When disconnected, chat actions like sending messages, WHOIS, and opening new DMs are disabled, and the server context menu offers reconnect.
+- When disconnected, chat actions like sending messages, WHOIS, opening new DMs, and channel list joins/refresh are disabled, and the server context menu offers reconnect.
 - Up/down arrows cycle through your sent input history.
 - Tab completes nicknames in the active channel and cycles matches (Shift+Tab reverses).
 - DM views show a right sidebar with user notes.

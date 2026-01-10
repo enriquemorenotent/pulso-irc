@@ -4,7 +4,14 @@ import { ChannelListSearch } from './ChannelListModal/ChannelListSearch.jsx';
 import { ChannelListTable } from './ChannelListModal/ChannelListTable.jsx';
 import { sortChannels } from './ChannelListModal/helpers.js';
 
-const ChannelListModal = ({ listState, onJoin, joinedChannels, onRefresh }) => {
+const ChannelListModal = ({
+	listState,
+	onJoin,
+	joinedChannels,
+	onRefresh,
+	canJoin,
+	canRefresh,
+}) => {
 	const [query, setQuery] = useState('');
 	const [sortKey, setSortKey] = useState('name');
 	const [sortDirection, setSortDirection] = useState('asc');
@@ -53,6 +60,7 @@ const ChannelListModal = ({ listState, onJoin, joinedChannels, onRefresh }) => {
 				statusLabel={statusLabel}
 				total={total}
 				onRefresh={onRefresh}
+				canRefresh={canRefresh}
 			/>
 
 			{error && (
@@ -71,6 +79,7 @@ const ChannelListModal = ({ listState, onJoin, joinedChannels, onRefresh }) => {
 				onSort={handleSort}
 				joinedChannels={joinedChannels}
 				onJoin={onJoin}
+				canJoin={canJoin}
 			/>
 
 			{truncated && (
