@@ -61,12 +61,17 @@ The renderer can send `connect` immediately after `hello`.
 }
 ```
 
+- Required: `connId`, `host`, `port` (1-65535), `tls` (must be `true`), `nick`, `username`, `realname`.
+- Optional: `caps` (array of non-empty strings), `options.receiveRaw` (boolean).
+- SASL: if `sasl.method` is `PLAIN`, `sasl.password` is required. If `EXTERNAL`, `clientCert` and `clientKey` are required.
+
 - `connected` (engine -> renderer): `{ "server": "string", "capEnabled": ["..."] }`
-- `disconnect` (renderer -> engine): `{ "reason": "string" }`
+- `disconnect` (renderer -> engine): `{ "connId": "string", "reason": "string (optional)" }`
 - `disconnected` (engine -> renderer): `{ "reason": "string", "reconnectInMs": 0 }`
 
 ## Renderer -> Engine Commands
-- `irc_send`: `{ "line": "RAW IRC LINE", "requestId": "string" }`
+- `irc_send`: `{ "connId": "string", "line": "RAW IRC LINE", "requestId": "string" }`
+  - `line` must be a non-empty string, max 512 chars, and must not contain `\\r` or `\\n`.
 
 ## Engine -> Renderer Events
 - `irc_raw`: `{ "line": "RAW IRC LINE" }`
@@ -87,4 +92,4 @@ The renderer can send `connect` immediately after `hello`.
 
 ## Errors + Health
 - `error`: `{ "code": "string", "message": "string", "fatal": false }`
-- `ping` / `pong`: `{ "nonce": "string" }`
+- `ping` / `pong`: `{ "nonce": "string (optional for ping)" }`
