@@ -1,20 +1,28 @@
 import { useEffect, useRef, useCallback } from 'react';
 import * as notifications from '../irc/notifications.js';
+import { playBeep } from '../irc/sounds.js';
+
+const BEEP_COOLDOWN_MS = 800;
 
 /**
  * Hook to show notifications for mentions and DMs
  * @param {Array} connections - List of connections with chat state
  * @param {Function} onSelectTarget - Function to navigate to a target
  * @param {boolean} notificationsEnabled - Whether notifications are enabled
+ * @param {Object} targetNotifications - Target beep settings
+ * @param {Function} targetNotifications.isTargetNotified
  */
 const useMessageNotifications = (
 	connections,
 	onSelectTarget,
-	notificationsEnabled
+	notificationsEnabled,
+	targetNotifications = {}
 ) => {
 	// Track seen message IDs to avoid duplicate notifications
 	const seenMessagesRef = useRef(new Set());
 	const isInitializedRef = useRef(false);
+	const lastBeepRef = useRef(0);
+	const isTargetNotified = targetNotifications?.isTargetNotified;
 
 	// Check if a target is currently active (visible)
 	const isTargetActive = useCallback(
@@ -28,7 +36,7 @@ const useMessageNotifications = (
 
 	// Process messages and show notifications
 	useEffect(() => {
-		if (!notificationsEnabled || !connections) return;
+		if (!connections) return;
 
 		// Skip initial load to avoid notification flood
 		if (!isInitializedRef.current) {
@@ -46,6 +54,8 @@ const useMessageNotifications = (
 			isInitializedRef.current = true;
 			return;
 		}
+
+		const canBeep = typeof isTargetNotified === 'function';
 
 		// Check for new messages
 		connections.forEach((connection) => {
@@ -89,6 +99,23 @@ const useMessageNotifications = (
 						return;
 					}
 
+					// Optional beep per target
+					if (
+						canBeep &&
+						(targetType === 'channel' || targetType === 'dm') &&
+						isTargetNotified(connectionId, targetName)
+					) {
+						const now = Date.now();
+						if (now - lastBeepRef.current >= BEEP_COOLDOWN_MS) {
+							playBeep();
+							lastBeepRef.current = now;
+						}
+					}
+
+					if (!notificationsEnabled) {
+						return;
+					}
+
 					// Check for DM
 					if (targetType === 'dm') {
 						notifications.showDirectMessage(
@@ -126,7 +153,13 @@ const useMessageNotifications = (
 			const arr = Array.from(seenMessagesRef.current);
 			seenMessagesRef.current = new Set(arr.slice(-1000));
 		}
-	}, [connections, notificationsEnabled, isTargetActive, onSelectTarget]);
+	}, [
+		connections,
+		notificationsEnabled,
+		isTargetActive,
+		isTargetNotified,
+		onSelectTarget,
+	]);
 };
 
 export { useMessageNotifications };

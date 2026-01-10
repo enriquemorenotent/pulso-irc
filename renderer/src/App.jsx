@@ -6,6 +6,7 @@ import { useGatewayStatus } from './hooks/useGatewayStatus.js';
 import { useProfiles } from './hooks/useProfiles.js';
 import { useFriends } from './hooks/useFriends.js';
 import { useUserNotes } from './hooks/useUserNotes.js';
+import { useTargetNotifications } from './hooks/useTargetNotifications.js';
 import { useAppView } from './hooks/useAppView.js';
 import { useIrcEventHandlers } from './hooks/useIrcEventHandlers.js';
 import { useChannelListModal } from './hooks/useChannelListModal.js';
@@ -58,6 +59,7 @@ const App = () => {
 		updateBlockedUser,
 	} = friendsApi;
 	const { getUserNote, setUserNote } = useUserNotes();
+	const targetNotifications = useTargetNotifications();
 
 	const { handleIrcEvent, createWhoisState } = useIrcEventHandlers({
 		getFriend,
@@ -66,6 +68,7 @@ const App = () => {
 		updateBlockedUser,
 		getUserNote,
 		setUserNote,
+		renameTargetNotified: targetNotifications.renameTargetNotified,
 		setWhoisState,
 	});
 
@@ -280,6 +283,7 @@ const App = () => {
 		showJoinPrompt,
 		statusTarget: STATUS_TARGET,
 		whoisState,
+		targetNotifications,
 	});
 
 	return (

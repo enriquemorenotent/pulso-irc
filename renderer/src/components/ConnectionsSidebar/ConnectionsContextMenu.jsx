@@ -21,6 +21,7 @@ const ConnectionsContextMenu = ({
 	onOpenChannelList,
 	onPartChannel,
 	onToggleAutoJoin,
+	onToggleTargetNotify,
 }) => {
 	if (!contextMenu) {
 		return null;
@@ -46,6 +47,10 @@ const ConnectionsContextMenu = ({
 					showClearLogs
 						? (nick) => onClearLogs(contextMenu.connectionId, nick)
 						: null
+				}
+				notifyEnabled={contextMenu.notifyEnabled}
+				onToggleNotify={
+					contextMenu.notifyAvailable ? onToggleTargetNotify : null
 				}
 				onCloseDm={
 					showCloseDm
@@ -73,28 +78,17 @@ const ConnectionsContextMenu = ({
 					Channel list
 				</button>
 			) : null}
-			{contextMenu.targetType === 'channel' && showPart ? (
-				<button
-					type="button"
-					onClick={onPartChannel}
-					className="w-full text-left px-3 py-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30"
-				>
-					Part channel
-				</button>
-			) : null}
-			{contextMenu.targetType === 'channel' && showClearLogs ? (
-				<button
-					type="button"
-					onClick={onClearLogs}
-					className="w-full text-left px-3 py-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30"
-				>
-					Clear logs
-				</button>
-			) : null}
 			{contextMenu.targetType === 'channel' &&
-			(showPart || showClearLogs) &&
-			showAutoJoin ? (
-				<div className="my-1 h-px bg-neutral-200 dark:bg-neutral-700" />
+			contextMenu.notifyAvailable ? (
+				<button
+					type="button"
+					onClick={onToggleTargetNotify}
+					className="w-full text-left px-3 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-700"
+				>
+					{contextMenu.notifyEnabled
+						? 'Disable beep'
+						: 'Enable beep'}
+				</button>
 			) : null}
 			{contextMenu.targetType === 'channel' && showAutoJoin ? (
 				<button
@@ -105,6 +99,29 @@ const ConnectionsContextMenu = ({
 					{contextMenu.autoJoinEnabled
 						? 'Remove from auto-join'
 						: 'Add to auto-join'}
+				</button>
+			) : null}
+			{contextMenu.targetType === 'channel' &&
+			(showPart || showClearLogs) &&
+			(contextMenu.notifyAvailable || showAutoJoin) ? (
+				<div className="my-1 h-px bg-neutral-200 dark:bg-neutral-700" />
+			) : null}
+			{contextMenu.targetType === 'channel' && showClearLogs ? (
+				<button
+					type="button"
+					onClick={onClearLogs}
+					className="w-full text-left px-3 py-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30"
+				>
+					Clear logs
+				</button>
+			) : null}
+			{contextMenu.targetType === 'channel' && showPart ? (
+				<button
+					type="button"
+					onClick={onPartChannel}
+					className="w-full text-left px-3 py-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30"
+				>
+					Part channel
 				</button>
 			) : null}
 		</div>

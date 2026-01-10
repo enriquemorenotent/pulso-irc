@@ -28,6 +28,8 @@ const ConnectionsSidebar = ({
 	onWhois,
 	onClearLogs,
 	onOpenChannelList,
+	isTargetNotified,
+	onToggleTargetNotify,
 }) => {
 	const showAutoJoin = Boolean(onToggleAutoJoin);
 	const showPart = Boolean(onPartChannel);
@@ -60,6 +62,7 @@ const ConnectionsSidebar = ({
 		handlePartChannel,
 		handleClearLogs,
 		handleOpenChannelList,
+		handleToggleTargetNotify,
 	} = useConnectionsContextMenu({
 		showAutoJoin,
 		showPart,
@@ -75,6 +78,8 @@ const ConnectionsSidebar = ({
 		onRemoveFriend,
 		onBlockUser,
 		onUnblockUser,
+		isTargetNotified,
+		onToggleTargetNotify,
 		resolveDmState,
 	});
 
@@ -159,6 +164,7 @@ const ConnectionsSidebar = ({
 				onOpenChannelList={handleOpenChannelList}
 				onPartChannel={handlePartChannel}
 				onToggleAutoJoin={handleToggleAutoJoin}
+				onToggleTargetNotify={handleToggleTargetNotify}
 			/>
 		</aside>
 	);

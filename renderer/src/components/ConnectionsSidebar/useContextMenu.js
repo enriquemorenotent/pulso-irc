@@ -15,10 +15,15 @@ const useConnectionsContextMenu = ({
 	onRemoveFriend,
 	onBlockUser,
 	onUnblockUser,
+	isTargetNotified,
+	onToggleTargetNotify,
 	resolveDmState,
 }) => {
 	const [contextMenu, setContextMenu] = useState(null);
 	const menuRef = useRef(null);
+	const showTargetNotify =
+		typeof onToggleTargetNotify === 'function' &&
+		typeof isTargetNotified === 'function';
 
 	const closeMenu = () => setContextMenu(null);
 
@@ -60,10 +65,12 @@ const useConnectionsContextMenu = ({
 		targetType,
 		autoJoinEnabled
 	) => {
+		const canChannelNotify = showTargetNotify && targetType === 'channel';
+		const canDmNotify = showTargetNotify && targetType === 'dm';
 		const hasServerActions = targetType === 'server' && showChannelList;
 		const hasChannelActions =
 			targetType === 'channel' &&
-			(showAutoJoin || showPart || showClearLogs);
+			(showAutoJoin || showPart || showClearLogs || canChannelNotify);
 		const dmState = targetType === 'dm' ? resolveDmState(targetName) : null;
 		const canDmMessage = false;
 		const canDmWhois = targetType === 'dm' && Boolean(onWhois);
@@ -83,7 +90,8 @@ const useConnectionsContextMenu = ({
 				canDmFriend ||
 				canDmBlock ||
 				showCloseDm ||
-				canDmClearLogs);
+				canDmClearLogs ||
+				canDmNotify);
 
 		if (!hasChannelActions && !hasDmActions && !hasServerActions) {
 			return;
@@ -101,7 +109,8 @@ const useConnectionsContextMenu = ({
 					? 1
 					: 0
 				: targetType === 'channel'
-				? (showPart ? 1 : 0) +
+				? (canChannelNotify ? 1 : 0) +
+				  (showPart ? 1 : 0) +
 				  (showClearLogs ? 1 : 0) +
 				  (showAutoJoin ? 1 : 0)
 				: (canDmMessage ? 1 : 0) +
@@ -109,7 +118,8 @@ const useConnectionsContextMenu = ({
 				  (canDmFriend ? 1 : 0) +
 				  (canDmBlock ? 1 : 0) +
 				  (showCloseDm ? 1 : 0) +
-				  (canDmClearLogs ? 1 : 0);
+				  (canDmClearLogs ? 1 : 0) +
+				  (canDmNotify ? 1 : 0);
 		const menuHeight =
 			menuRowHeight * menuRows +
 			(targetType === 'dm' ? menuHeaderHeight : 0);
@@ -123,11 +133,20 @@ const useConnectionsContextMenu = ({
 			window.innerHeight - menuHeight - padding
 		);
 
+		const notifyAvailable =
+			(showTargetNotify && targetType === 'channel') ||
+			(showTargetNotify && targetType === 'dm');
+		const notifyEnabled = notifyAvailable
+			? Boolean(isTargetNotified(connectionId, targetName))
+			: false;
+
 		setContextMenu({
 			connectionId,
 			targetName,
 			targetType,
 			autoJoinEnabled,
+			notifyAvailable,
+			notifyEnabled,
 			x,
 			y,
 		});
@@ -188,6 +207,23 @@ const useConnectionsContextMenu = ({
 		closeMenu();
 	};
 
+	const handleToggleTargetNotify = () => {
+		if (!contextMenu || !onToggleTargetNotify) {
+			return;
+		}
+
+		if (contextMenu.targetType !== 'channel' && contextMenu.targetType !== 'dm') {
+			return;
+		}
+
+		onToggleTargetNotify(
+			contextMenu.connectionId,
+			contextMenu.targetName,
+			!contextMenu.notifyEnabled
+		);
+		closeMenu();
+	};
+
 	return {
 		contextMenu,
 		menuRef,
@@ -197,6 +233,7 @@ const useConnectionsContextMenu = ({
 		handlePartChannel,
 		handleClearLogs,
 		handleOpenChannelList,
+		handleToggleTargetNotify,
 	};
 };
 

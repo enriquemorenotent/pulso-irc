@@ -1,4 +1,6 @@
 import {
+	Bell,
+	BellOff,
 	Ban,
 	Info,
 	MessageCircle,
@@ -25,12 +27,15 @@ const NickContextMenu = ({
 	onUnblockUser,
 	onCloseDm,
 	onClearLogs,
+	notifyEnabled,
+	onToggleNotify,
 	containerRef,
 }) => {
 	const menuRef = useRef(null);
 	const showCloseDm = typeof onCloseDm === 'function';
 	const canMessage = showMessage && typeof onOpenDm === 'function';
 	const showClearLogs = typeof onClearLogs === 'function';
+	const showNotifyToggle = typeof onToggleNotify === 'function';
 	const showFooterActions = showCloseDm || showClearLogs;
 	const setMenuRefs = (node) => {
 		menuRef.current = node;
@@ -107,8 +112,37 @@ const NickContextMenu = ({
 				</button>
 			)}
 
+			{showNotifyToggle && (
+				<button
+					type="button"
+					onClick={() => {
+						onToggleNotify();
+						onClose();
+					}}
+					className={menuItemClass}
+				>
+					{notifyEnabled ? (
+						<BellOff className="w-4 h-4" />
+					) : (
+						<Bell className="w-4 h-4" />
+					)}
+					{notifyEnabled ? 'Disable beep' : 'Enable beep'}
+				</button>
+			)}
+
 			{isFriend ? (
 				<>
+					<button
+						type="button"
+						onClick={() => {
+							onRemoveFriend(nick);
+							onClose();
+						}}
+						className={`${menuItemClass} text-red-600 dark:text-red-400`}
+					>
+						<UserMinus className="w-4 h-4" />
+						Remove Friend
+					</button>
 					<button
 						type="button"
 						onClick={() => {
@@ -123,17 +157,6 @@ const NickContextMenu = ({
 					>
 						<Ban className="w-4 h-4" />
 						{isBlocked ? 'Unblock User' : 'Block User'}
-					</button>
-					<button
-						type="button"
-						onClick={() => {
-							onRemoveFriend(nick);
-							onClose();
-						}}
-						className={`${menuItemClass} text-red-600 dark:text-red-400`}
-					>
-						<UserMinus className="w-4 h-4" />
-						Remove Friend
 					</button>
 				</>
 			) : (

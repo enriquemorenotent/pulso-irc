@@ -33,6 +33,7 @@ npm run dev
 - DM tabs are not restored on launch; opening a DM loads its local history.
 - DM tabs dim when the nick is not seen in a channel on that connection.
 - Channel and DM tabs can clear their local logs from the right-click menu.
+- Channel and DM tabs can toggle a per-tab beep on new messages from the right-click menu.
 - Sends a local echo for outgoing DM messages when the server does not support echo-message.
 - Applies profile and default edits only after you save them in Manage Profiles.
 - Shows an engine status indicator with a manual recheck.
@@ -70,6 +71,7 @@ lives in `renderer/src/irc/constants.js`.
 - Non-sensitive defaults and connection settings are stored locally in `localStorage`.
 - Last 300 messages per channel/DM are stored locally in `localStorage`.
 - DM notes are stored locally in `localStorage`.
+- Per-tab beep preferences are stored locally in `localStorage`.
 - SASL passwords are stored per profile in plaintext in `localStorage`.
 - Client certs and client keys are kept in memory only and are not persisted.
 

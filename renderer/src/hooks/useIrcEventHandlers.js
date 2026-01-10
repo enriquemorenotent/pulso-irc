@@ -47,6 +47,7 @@ const useIrcEventHandlers = ({
 	updateBlockedUser,
 	getUserNote,
 	setUserNote,
+	renameTargetNotified,
 	setWhoisState,
 }) => {
 	const handleIrcEvent = useCallback(
@@ -77,6 +78,9 @@ const useIrcEventHandlers = ({
 						if (note) {
 							setUserNote(connectionId, newNick, note);
 							setUserNote(connectionId, oldNick, '');
+						}
+						if (renameTargetNotified) {
+							renameTargetNotified(connectionId, oldNick, newNick);
 						}
 					}
 				}
@@ -201,6 +205,7 @@ const useIrcEventHandlers = ({
 			getBlockedUser,
 			getFriend,
 			getUserNote,
+			renameTargetNotified,
 			setUserNote,
 			setWhoisState,
 			updateBlockedUser,
