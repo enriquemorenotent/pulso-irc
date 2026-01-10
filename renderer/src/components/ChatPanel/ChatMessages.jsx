@@ -133,8 +133,6 @@ const ChatMessages = ({
 		return messageItems;
 	}, [activeTarget.messages, lastReadIndex, showUnreadDivider]);
 
-	const listKey = `${chatState.server || chatState.me || 'irc'}:${activeTarget.name}`;
-
 	return (
 		<div
 			ref={scrollRef}
@@ -172,7 +170,6 @@ const ChatMessages = ({
 			<div className="flex flex-col py-2">
 				{items.length ? (
 					<MessageListBody
-						key={listKey}
 						items={items}
 						onChannelClick={onChannelClick}
 						onNickContextMenu={onNickContextMenu}

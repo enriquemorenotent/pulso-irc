@@ -146,10 +146,20 @@ const renameUser = (target, oldNick, newNick) => {
 	return { ...target, users: nextUsers };
 };
 
-const sortUsers = (users) => {
-	const entries = Object.entries(users);
+const sortedUsersCache = new WeakMap();
 
-	return entries.sort((a, b) => {
+const sortUsers = (users) => {
+	if (!users || typeof users !== 'object') {
+		return [];
+	}
+
+	const cached = sortedUsersCache.get(users);
+	if (cached) {
+		return cached;
+	}
+
+	const entries = Object.entries(users);
+	entries.sort((a, b) => {
 		const weightA = PREFIX_ORDER.indexOf(a[1]?.[0] || '');
 		const weightB = PREFIX_ORDER.indexOf(b[1]?.[0] || '');
 
@@ -159,6 +169,9 @@ const sortUsers = (users) => {
 
 		return a[0].localeCompare(b[0]);
 	});
+
+	sortedUsersCache.set(users, entries);
+	return entries;
 };
 
 export {
