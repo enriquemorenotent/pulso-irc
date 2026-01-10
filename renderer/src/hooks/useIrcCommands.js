@@ -26,6 +26,10 @@ const useIrcCommands = ({
 	});
 
 	const handleSend = () => {
+		if (chatState.status !== 'connected') {
+			addStatusNote('Not connected.');
+			return;
+		}
 		const parsed = parseInput(messageInput);
 		if (!parsed) {
 			return;

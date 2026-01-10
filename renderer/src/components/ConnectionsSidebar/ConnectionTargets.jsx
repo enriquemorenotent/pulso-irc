@@ -12,24 +12,22 @@ const ConnectionTargets = ({
 	onCloseDm,
 	onlineNicksByConnection,
 }) => {
-	const canShowTargets = connection.chatState.status === 'connected';
-	const targets = canShowTargets
-		? sortTargets(
-				connection.chatState.order.filter((name) => {
-					if (name === statusTarget) {
-						return false;
-					}
-					const target = connection.chatState.targets[name];
-					if (!target) {
-						return false;
-					}
-					if (!isChannelName(name)) {
-						return true;
-					}
-					return Boolean(target.joined);
-				})
-			)
-		: [];
+	const isConnected = connection.chatState.status === 'connected';
+	const targets = sortTargets(
+		connection.chatState.order.filter((name) => {
+			if (name === statusTarget) {
+				return false;
+			}
+			const target = connection.chatState.targets[name];
+			if (!target) {
+				return false;
+			}
+			if (!isChannelName(name)) {
+				return true;
+			}
+			return Boolean(target.joined);
+		})
+	);
 
 	const isDmOnline = (nick) => {
 		if (!nick || !onlineNicksByConnection) {
@@ -59,6 +57,7 @@ const ConnectionTargets = ({
 					: false;
 				const targetType = isChannel ? 'channel' : 'dm';
 				const canCloseDm = targetType === 'dm' && onCloseDm;
+				const dimDisconnected = !isConnected;
 
 				return (
 					<button
@@ -86,6 +85,7 @@ const ConnectionTargets = ({
 									? 'text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-300'
 									: 'text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 dark:text-neutral-500 dark:hover:bg-neutral-800 dark:hover:text-neutral-400'
 							}
+							${dimDisconnected ? 'opacity-60' : ''}
 						`}
 					>
 						<div className="flex items-center gap-2 overflow-hidden pl-1">

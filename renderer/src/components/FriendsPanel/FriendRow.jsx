@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { getNickColorClasses } from '../../irc/formatting.js';
 import { formatLastSeen } from './helpers.js';
 
-const FriendRow = ({ friend, onMessage, onEdit, onRemove }) => {
+const FriendRow = ({ friend, onMessage, onEdit, onRemove, canMessage }) => {
 	const [showActions, setShowActions] = useState(false);
 	const displayName = friend.alias || friend.displayNick || friend.nick;
 	const nickColor = getNickColorClasses(friend.displayNick || friend.nick);
@@ -62,8 +62,17 @@ const FriendRow = ({ friend, onMessage, onEdit, onRemove }) => {
 			>
 				<button
 					type="button"
-					onClick={() => onMessage(friend)}
-					className="p-1.5 rounded hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-500 hover:text-blue-600 dark:text-neutral-400 dark:hover:text-blue-400 transition-colors"
+					onClick={() => {
+						if (canMessage) {
+							onMessage(friend);
+						}
+					}}
+					disabled={!canMessage}
+					className={`p-1.5 rounded transition-colors ${
+						canMessage
+							? 'hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-500 hover:text-blue-600 dark:text-neutral-400 dark:hover:text-blue-400'
+							: 'text-neutral-300 dark:text-neutral-700 cursor-not-allowed'
+					}`}
 					title="Send message"
 				>
 					<MessageCircle className="w-4 h-4" />

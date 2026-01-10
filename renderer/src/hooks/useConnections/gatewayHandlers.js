@@ -44,6 +44,7 @@ const createGatewayMessageHandler = ({
 	isBlocked,
 	pendingJoinsRef,
 	nickRetryRef,
+	rejoinTargetsRef,
 	connectedAtRef,
 }) => (event) => {
 	let message;
@@ -112,8 +113,34 @@ const createGatewayMessageHandler = ({
 			);
 		}
 
-		const channels = splitAutoJoin(settings.autoJoin);
-		channels.forEach((channel) => {
+		const joinSet = new Set();
+		const joinTargets = [];
+		const addJoinTarget = (channel) => {
+			if (!channel) {
+				return;
+			}
+			const key = channel.toLowerCase();
+			if (joinSet.has(key)) {
+				return;
+			}
+			joinSet.add(key);
+			joinTargets.push(channel);
+		};
+
+		splitAutoJoin(settings.autoJoin).forEach(addJoinTarget);
+
+		const rejoinTargets =
+			rejoinTargetsRef?.current?.[connectionId] || new Set();
+		if (Array.isArray(rejoinTargets)) {
+			rejoinTargets.forEach(addJoinTarget);
+		} else if (rejoinTargets instanceof Set) {
+			rejoinTargets.forEach(addJoinTarget);
+		}
+		if (rejoinTargetsRef?.current) {
+			rejoinTargetsRef.current[connectionId] = new Set();
+		}
+
+		joinTargets.forEach((channel) => {
 			sendMessage(connectionId, {
 				type: 'irc_send',
 				connId: settings.connId,

@@ -81,6 +81,7 @@ const App = () => {
 		connections,
 		connect,
 		disconnect,
+		close,
 		sendMessage,
 		updateChatState,
 		addStatusNote,
@@ -138,7 +139,13 @@ const App = () => {
 			setClientSecrets,
 		});
 
-	const { handleConnect, handleDisconnect, handleSelectTarget } =
+	const {
+		handleConnect,
+		handleDisconnect,
+		handleCloseConnection,
+		handleReconnect,
+		handleSelectTarget,
+	} =
 		useConnectionActions({
 			selectedProfile: profileState.selectedProfile,
 			canConnect: profileState.canConnect,
@@ -146,6 +153,8 @@ const App = () => {
 			selectedSecrets: profileState.selectedSecrets,
 			connect,
 			disconnect,
+			close,
+			secretsByProfileId: clientSecrets,
 			connections,
 			updateChatState,
 			setActiveConnectionId,
@@ -242,6 +251,8 @@ const App = () => {
 	const connectionActions = {
 		handleConnect,
 		handleDisconnect,
+		handleCloseConnection,
+		handleReconnect,
 		handleSelectTarget,
 	};
 	const chatActions = {

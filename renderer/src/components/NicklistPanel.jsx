@@ -18,15 +18,19 @@ const NicklistPanel = ({
 	onUnblockUser,
 }) => {
 	const [contextMenu, setContextMenu] = useState(null);
+	const isConnected = chatState?.status === 'connected';
 
 	const handleContextMenu = useCallback((e, nick) => {
+		if (!isConnected) {
+			return;
+		}
 		e.preventDefault();
 		setContextMenu({
 			x: e.clientX,
 			y: e.clientY,
 			nick,
 		});
-	}, []);
+	}, [isConnected]);
 
 	const closeContextMenu = useCallback(() => {
 		setContextMenu(null);
@@ -34,8 +38,11 @@ const NicklistPanel = ({
 
 	const isStale =
 		activeTarget?.type === 'channel' &&
-		!activeTarget?.namesReceived &&
-		chatState?.status !== 'connected';
+		(!activeTarget?.namesReceived || !isConnected);
+	const staleLabel =
+		chatState?.status === 'connecting' || chatState?.status === 'authed'
+			? 'Connecting'
+			: 'Disconnected';
 
 	return (
 		<aside className="h-full w-56 flex-shrink-0 border-l border-neutral-200 bg-white flex flex-col dark:bg-neutral-900 dark:border-neutral-800">
@@ -50,7 +57,7 @@ const NicklistPanel = ({
 			{isStale && activeUsers.length > 0 && (
 				<div className="mx-2 mt-2 px-2 py-1.5 rounded bg-amber-50 border border-amber-200 dark:bg-amber-900/20 dark:border-amber-900/50">
 					<p className="text-[10px] text-amber-700 dark:text-amber-300 font-medium">
-						⚠️ Reconnecting - user list may be outdated
+						⚠️ {staleLabel} - user list may be outdated
 					</p>
 				</div>
 			)}
@@ -68,18 +75,28 @@ const NicklistPanel = ({
 							return (
 								<div
 									key={nick}
-									onDoubleClick={() =>
-										onOpenDm && onOpenDm(nick)
-									}
+									onDoubleClick={() => {
+										if (isConnected && onOpenDm) {
+											onOpenDm(nick);
+										}
+									}}
 									onContextMenu={(e) =>
 										handleContextMenu(e, nick)
 									}
-									className={`flex items-center justify-between gap-3 px-4 py-1.5 hover:bg-neutral-50 hover:text-neutral-900 text-sm cursor-pointer transition-colors dark:hover:bg-neutral-900/30 dark:hover:text-neutral-300 ${
+									className={`flex items-center justify-between gap-3 px-4 py-1.5 text-sm transition-colors ${
 										nickIsBlocked
 											? 'text-neutral-400 dark:text-neutral-600 line-through'
 											: 'text-neutral-700 dark:text-neutral-300'
+									} ${
+										isConnected
+											? 'cursor-pointer hover:bg-neutral-50 hover:text-neutral-900 dark:hover:bg-neutral-900/30 dark:hover:text-neutral-300'
+											: 'cursor-not-allowed opacity-60'
 									}`}
-									title="Double-click to message, right-click for options"
+									title={
+										isConnected
+											? 'Double-click to message, right-click for options'
+											: 'Disconnected'
+									}
 								>
 									<div className="flex items-center gap-2 min-w-0">
 										<span
@@ -118,7 +135,7 @@ const NicklistPanel = ({
 				)}
 			</div>
 
-			{contextMenu && (
+			{contextMenu && isConnected && (
 				<NickContextMenu
 					x={contextMenu.x}
 					y={contextMenu.y}

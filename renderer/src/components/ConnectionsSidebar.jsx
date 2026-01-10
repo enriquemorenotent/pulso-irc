@@ -13,6 +13,8 @@ const ConnectionsSidebar = ({
 	activeConnectionId,
 	onSelectTarget,
 	onDisconnect,
+	onCloseConnection,
+	onReconnect,
 	statusTarget,
 	onToggleAutoJoin,
 	onPartChannel,
@@ -52,6 +54,19 @@ const ConnectionsSidebar = ({
 		resolveDmState,
 		connectionLabelsById,
 	} = useSidebarData({ connections, friends, isBlocked, isFriend });
+	const connectionStatusById = new Map(
+		connections.map((connection) => [
+			connection.id,
+			connection.chatState?.status || 'idle',
+		])
+	);
+	const isConnectionConnected = (connectionId) =>
+		connectionStatusById.get(connectionId) === 'connected';
+	const canStartDm =
+		activeConnectionId &&
+		connectionStatusById.get(activeConnectionId) === 'connected';
+	const resolveConnectionStatus = (connectionId) =>
+		connectionStatusById.get(connectionId) || 'idle';
 
 	const {
 		contextMenu,
@@ -62,6 +77,9 @@ const ConnectionsSidebar = ({
 		handlePartChannel,
 		handleClearLogs,
 		handleOpenChannelList,
+		handleDisconnect,
+		handleReconnect,
+		handleCloseServer,
 		handleToggleTargetNotify,
 	} = useConnectionsContextMenu({
 		showAutoJoin,
@@ -69,10 +87,16 @@ const ConnectionsSidebar = ({
 		showCloseDm,
 		showClearLogs,
 		showChannelList,
+		showCloseServer: Boolean(onCloseConnection),
+		showDisconnectServer: Boolean(onDisconnect),
+		showReconnectServer: Boolean(onReconnect),
 		onToggleAutoJoin,
 		onPartChannel,
 		onClearLogs,
 		onOpenChannelList,
+		onDisconnect,
+		onCloseServer: onCloseConnection,
+		onReconnect,
 		onWhois,
 		onAddFriend,
 		onRemoveFriend,
@@ -80,6 +104,7 @@ const ConnectionsSidebar = ({
 		onUnblockUser,
 		isTargetNotified,
 		onToggleTargetNotify,
+		resolveConnectionStatus,
 		resolveDmState,
 	});
 
@@ -111,6 +136,7 @@ const ConnectionsSidebar = ({
 							isActive={connection.id === activeConnectionId}
 							onSelect={onSelectTarget}
 							onDisconnect={onDisconnect}
+							onReconnect={onReconnect}
 							statusTarget={statusTarget}
 							onTargetContextMenu={openContextMenu}
 							friendNickSet={friendNickSet}
@@ -139,6 +165,8 @@ const ConnectionsSidebar = ({
 				offlineFriends={offlineFriends}
 				onOpenDm={onOpenDm}
 				connectionLabelsById={connectionLabelsById}
+				isConnectionConnected={isConnectionConnected}
+				canStartDm={canStartDm}
 				showOffline={showOfflineFriends}
 				onToggleShowOffline={setShowOfflineFriends}
 			/>
@@ -148,7 +176,9 @@ const ConnectionsSidebar = ({
 				menuRef={menuRef}
 				resolveDmState={resolveDmState}
 				showChannelList={showChannelList}
-				showPart={showPart}
+				showCloseServer={Boolean(onCloseConnection)}
+				showDisconnectServer={Boolean(onDisconnect)}
+				showReconnectServer={Boolean(onReconnect)}
 				showClearLogs={showClearLogs}
 				showAutoJoin={showAutoJoin}
 				showCloseDm={showCloseDm}
@@ -162,6 +192,9 @@ const ConnectionsSidebar = ({
 				onClearLogs={handleClearLogs}
 				onCloseDm={onCloseDm}
 				onOpenChannelList={handleOpenChannelList}
+				onDisconnect={handleDisconnect}
+				onReconnect={handleReconnect}
+				onCloseServer={handleCloseServer}
 				onPartChannel={handlePartChannel}
 				onToggleAutoJoin={handleToggleAutoJoin}
 				onToggleTargetNotify={handleToggleTargetNotify}

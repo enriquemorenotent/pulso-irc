@@ -1,7 +1,14 @@
 import { Users } from 'lucide-react';
 import { FriendRow } from './FriendRow.jsx';
 
-const FriendsList = ({ friends, searchQuery, onMessage, onEdit, onRemove }) => {
+const FriendsList = ({
+	friends,
+	searchQuery,
+	onMessage,
+	onEdit,
+	onRemove,
+	canMessage,
+}) => {
 	if (!friends.length) {
 		return (
 			<div className="flex flex-col items-center justify-center h-full text-center p-8">
@@ -30,6 +37,7 @@ const FriendsList = ({ friends, searchQuery, onMessage, onEdit, onRemove }) => {
 					key={friend.id}
 					friend={friend}
 					onMessage={onMessage}
+					canMessage={canMessage}
 					onEdit={onEdit}
 					onRemove={onRemove}
 				/>

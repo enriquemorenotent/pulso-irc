@@ -9,6 +9,7 @@ const FriendsPanel = ({
 	onRemoveFriend,
 	onUpdateFriend,
 	onOpenDm,
+	canOpenDm,
 	onClose,
 	notificationsEnabled,
 	notificationsPermission,
@@ -33,7 +34,7 @@ const FriendsPanel = ({
 	}, [friends, searchQuery]);
 
 	const handleMessage = (friend) => {
-		if (onOpenDm) {
+		if (onOpenDm && canOpenDm) {
 			onOpenDm(friend.displayNick || friend.nick);
 		}
 	};
@@ -60,6 +61,7 @@ const FriendsPanel = ({
 					friends={filteredFriends}
 					searchQuery={searchQuery.trim()}
 					onMessage={handleMessage}
+					canMessage={canOpenDm}
 					onEdit={setEditingFriend}
 					onRemove={onRemoveFriend}
 				/>

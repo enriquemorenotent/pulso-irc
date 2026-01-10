@@ -5,7 +5,9 @@ const ConnectionsContextMenu = ({
 	menuRef,
 	resolveDmState,
 	showChannelList,
-	showPart,
+	showCloseServer,
+	showDisconnectServer,
+	showReconnectServer,
 	showClearLogs,
 	showAutoJoin,
 	showCloseDm,
@@ -19,6 +21,9 @@ const ConnectionsContextMenu = ({
 	onClearLogs,
 	onCloseDm,
 	onOpenChannelList,
+	onDisconnect,
+	onReconnect,
+	onCloseServer,
 	onPartChannel,
 	onToggleAutoJoin,
 	onToggleTargetNotify,
@@ -38,7 +43,11 @@ const ConnectionsContextMenu = ({
 				isBlocked={resolveDmState(contextMenu.targetName).isBlocked}
 				onClose={onClose}
 				onOpenDm={(nick) => onOpenDm && onOpenDm(nick, contextMenu.connectionId)}
-				onWhois={(nick) => onWhois && onWhois(nick, contextMenu.connectionId)}
+				onWhois={
+					contextMenu.canDmWhois
+						? (nick) => onWhois && onWhois(nick, contextMenu.connectionId)
+						: null
+				}
 				onAddFriend={onAddFriend}
 				onRemoveFriend={onRemoveFriend}
 				onBlockUser={onBlockUser}
@@ -69,13 +78,48 @@ const ConnectionsContextMenu = ({
 			className="fixed z-50 min-w-[200px] rounded-md border border-neutral-200 bg-white shadow-lg py-1 text-sm text-neutral-700 dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-200"
 			style={{ top: contextMenu.y, left: contextMenu.x }}
 		>
-			{contextMenu.targetType === 'server' && showChannelList ? (
+			{contextMenu.targetType === 'server' &&
+			showChannelList &&
+			contextMenu.canOpenChannelList ? (
 				<button
 					type="button"
 					onClick={onOpenChannelList}
 					className="w-full text-left px-3 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-700"
 				>
 					Channel list
+				</button>
+			) : null}
+			{contextMenu.targetType === 'server' &&
+			showDisconnectServer &&
+			contextMenu.canDisconnectServer ? (
+				<button
+					type="button"
+					onClick={onDisconnect}
+					className="w-full text-left px-3 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-700"
+				>
+					Disconnect
+				</button>
+			) : null}
+			{contextMenu.targetType === 'server' &&
+			showReconnectServer &&
+			contextMenu.canReconnectServer ? (
+				<button
+					type="button"
+					onClick={onReconnect}
+					className="w-full text-left px-3 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-700"
+				>
+					Reconnect
+				</button>
+			) : null}
+			{contextMenu.targetType === 'server' &&
+			showCloseServer &&
+			contextMenu.canCloseServer ? (
+				<button
+					type="button"
+					onClick={onCloseServer}
+					className="w-full text-left px-3 py-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30"
+				>
+					Close server
 				</button>
 			) : null}
 			{contextMenu.targetType === 'channel' &&
@@ -102,7 +146,7 @@ const ConnectionsContextMenu = ({
 				</button>
 			) : null}
 			{contextMenu.targetType === 'channel' &&
-			(showPart || showClearLogs) &&
+			(contextMenu.canPartChannel || showClearLogs) &&
 			(contextMenu.notifyAvailable || showAutoJoin) ? (
 				<div className="my-1 h-px bg-neutral-200 dark:bg-neutral-700" />
 			) : null}
@@ -115,7 +159,8 @@ const ConnectionsContextMenu = ({
 					Clear logs
 				</button>
 			) : null}
-			{contextMenu.targetType === 'channel' && showPart ? (
+			{contextMenu.targetType === 'channel' &&
+			contextMenu.canPartChannel ? (
 				<button
 					type="button"
 					onClick={onPartChannel}

@@ -15,6 +15,7 @@ const ConnectionItem = ({
 	isActive,
 	onSelect,
 	onDisconnect,
+	onReconnect,
 	statusTarget,
 	onTargetContextMenu,
 	friendNickSet,
@@ -25,12 +26,20 @@ const ConnectionItem = ({
 		statusMeta[connection.chatState.status] || statusMeta.idle;
 	const isStatusActive =
 		isActive && connection.chatState.active === statusTarget;
-	const showDisconnect = [
-		'connecting',
-		'authed',
-		'connected',
-		'error',
-	].includes(connection.chatState.status);
+	const status = connection.chatState.status;
+	const canDisconnect = ['connecting', 'authed', 'connected'].includes(status);
+	const actionType = canDisconnect ? 'disconnect' : 'reconnect';
+	const showAction =
+		actionType === 'disconnect'
+			? Boolean(onDisconnect)
+			: Boolean(onReconnect);
+	const handleAction = () => {
+		if (actionType === 'disconnect') {
+			onDisconnect(connection.id);
+			return;
+		}
+		onReconnect(connection.id);
+	};
 
 	return (
 		<div className="mb-2">
@@ -41,8 +50,9 @@ const ConnectionItem = ({
 				statusInfo={statusInfo}
 				onSelect={onSelect}
 				onTargetContextMenu={onTargetContextMenu}
-				showDisconnect={showDisconnect}
-				onDisconnect={onDisconnect}
+				showAction={showAction}
+				actionType={actionType}
+				onAction={handleAction}
 			/>
 			<ConnectionTargets
 				connection={connection}

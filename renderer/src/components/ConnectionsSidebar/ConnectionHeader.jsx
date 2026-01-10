@@ -1,4 +1,4 @@
-import { AlertCircle, Power, Server } from 'lucide-react';
+import { AlertCircle, Power, RefreshCw, Server } from 'lucide-react';
 
 const ConnectionHeader = ({
 	connection,
@@ -7,8 +7,9 @@ const ConnectionHeader = ({
 	statusInfo,
 	onSelect,
 	onTargetContextMenu,
-	showDisconnect,
-	onDisconnect,
+	showAction,
+	actionType,
+	onAction,
 }) => (
 	<div className="px-2 mb-1">
 		<button
@@ -66,17 +67,25 @@ const ConnectionHeader = ({
 				</div>
 			</div>
 
-			{showDisconnect && (
+			{showAction && (
 				<div
 					role="button"
 					onClick={(event) => {
 						event.stopPropagation();
-						onDisconnect(connection.id);
+						onAction();
 					}}
-					className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400 rounded text-neutral-400 dark:text-neutral-500 transition-all cursor-pointer"
-					title="Disconnect"
+					className={`opacity-0 group-hover:opacity-100 p-1 rounded text-neutral-400 dark:text-neutral-500 transition-all cursor-pointer ${
+						actionType === 'disconnect'
+							? 'hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400'
+							: 'hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-900/30 dark:hover:text-emerald-400'
+					}`}
+					title={actionType === 'disconnect' ? 'Disconnect' : 'Reconnect'}
 				>
-					<Power className="w-3 h-3" />
+					{actionType === 'disconnect' ? (
+						<Power className="w-3 h-3" />
+					) : (
+						<RefreshCw className="w-3 h-3" />
+					)}
 				</div>
 			)}
 		</button>

@@ -6,10 +6,16 @@ const useConnectionsContextMenu = ({
 	showCloseDm,
 	showClearLogs,
 	showChannelList,
+	showCloseServer,
+	showDisconnectServer,
+	showReconnectServer,
 	onToggleAutoJoin,
 	onPartChannel,
 	onClearLogs,
 	onOpenChannelList,
+	onDisconnect,
+	onCloseServer,
+	onReconnect,
 	onWhois,
 	onAddFriend,
 	onRemoveFriend,
@@ -17,6 +23,7 @@ const useConnectionsContextMenu = ({
 	onUnblockUser,
 	isTargetNotified,
 	onToggleTargetNotify,
+	resolveConnectionStatus,
 	resolveDmState,
 }) => {
 	const [contextMenu, setContextMenu] = useState(null);
@@ -65,15 +72,39 @@ const useConnectionsContextMenu = ({
 		targetType,
 		autoJoinEnabled
 	) => {
+		const connectionStatus = resolveConnectionStatus
+			? resolveConnectionStatus(connectionId)
+			: null;
+		const isConnected = connectionStatus === 'connected';
+		const isConnecting =
+			connectionStatus === 'connecting' || connectionStatus === 'authed';
+		const canOpenChannelList = Boolean(showChannelList && isConnected);
+		const canDisconnectServer = Boolean(
+			showDisconnectServer && (isConnected || isConnecting)
+		);
+		const canReconnectServer = Boolean(
+			showReconnectServer && !isConnected && !isConnecting
+		);
+		const canCloseServer = Boolean(showCloseServer);
 		const canChannelNotify = showTargetNotify && targetType === 'channel';
 		const canDmNotify = showTargetNotify && targetType === 'dm';
-		const hasServerActions = targetType === 'server' && showChannelList;
+		const hasServerActions =
+			targetType === 'server' &&
+			(canOpenChannelList ||
+				canDisconnectServer ||
+				canReconnectServer ||
+				canCloseServer);
+		const canPartChannel = Boolean(showPart && isConnected);
 		const hasChannelActions =
 			targetType === 'channel' &&
-			(showAutoJoin || showPart || showClearLogs || canChannelNotify);
+			(showAutoJoin ||
+				canPartChannel ||
+				showClearLogs ||
+				canChannelNotify);
 		const dmState = targetType === 'dm' ? resolveDmState(targetName) : null;
 		const canDmMessage = false;
-		const canDmWhois = targetType === 'dm' && Boolean(onWhois);
+		const canDmWhois =
+			targetType === 'dm' && Boolean(onWhois) && isConnected;
 		const canDmFriend =
 			targetType === 'dm' &&
 			(dmState?.isFriend ? Boolean(onRemoveFriend) : Boolean(onAddFriend));
@@ -105,12 +136,13 @@ const useConnectionsContextMenu = ({
 		const menuHeaderHeight = 36;
 		const menuRows =
 			targetType === 'server'
-				? showChannelList
-					? 1
-					: 0
+				? (canOpenChannelList ? 1 : 0) +
+				  (canDisconnectServer ? 1 : 0) +
+				  (canReconnectServer ? 1 : 0) +
+				  (canCloseServer ? 1 : 0)
 				: targetType === 'channel'
 				? (canChannelNotify ? 1 : 0) +
-				  (showPart ? 1 : 0) +
+				  (canPartChannel ? 1 : 0) +
 				  (showClearLogs ? 1 : 0) +
 				  (showAutoJoin ? 1 : 0)
 				: (canDmMessage ? 1 : 0) +
@@ -147,6 +179,13 @@ const useConnectionsContextMenu = ({
 			autoJoinEnabled,
 			notifyAvailable,
 			notifyEnabled,
+			connectionStatus,
+			canOpenChannelList,
+			canDisconnectServer,
+			canReconnectServer,
+			canCloseServer,
+			canPartChannel,
+			canDmWhois,
 			x,
 			y,
 		});
@@ -171,6 +210,9 @@ const useConnectionsContextMenu = ({
 		}
 
 		if (contextMenu.targetType !== 'channel') {
+			return;
+		}
+		if (!contextMenu.canPartChannel) {
 			return;
 		}
 
@@ -200,10 +242,61 @@ const useConnectionsContextMenu = ({
 			return;
 		}
 
+		if (!contextMenu.canOpenChannelList) {
+			return;
+		}
+
 		onOpenChannelList(contextMenu.connectionId, {
 			sendList: true,
 			reset: true,
 		});
+		closeMenu();
+	};
+
+	const handleDisconnect = () => {
+		if (!contextMenu || !onDisconnect) {
+			return;
+		}
+
+		if (contextMenu.targetType !== 'server') {
+			return;
+		}
+
+		if (!contextMenu.canDisconnectServer) {
+			return;
+		}
+
+		onDisconnect(contextMenu.connectionId);
+		closeMenu();
+	};
+
+	const handleCloseServer = () => {
+		if (!contextMenu || !onCloseServer) {
+			return;
+		}
+
+		if (contextMenu.targetType !== 'server') {
+			return;
+		}
+
+		onCloseServer(contextMenu.connectionId);
+		closeMenu();
+	};
+
+	const handleReconnect = () => {
+		if (!contextMenu || !onReconnect) {
+			return;
+		}
+
+		if (contextMenu.targetType !== 'server') {
+			return;
+		}
+
+		if (!contextMenu.canReconnectServer) {
+			return;
+		}
+
+		onReconnect(contextMenu.connectionId);
 		closeMenu();
 	};
 
@@ -233,6 +326,9 @@ const useConnectionsContextMenu = ({
 		handlePartChannel,
 		handleClearLogs,
 		handleOpenChannelList,
+		handleDisconnect,
+		handleReconnect,
+		handleCloseServer,
 		handleToggleTargetNotify,
 	};
 };

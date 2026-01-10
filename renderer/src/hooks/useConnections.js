@@ -22,6 +22,7 @@ const useConnections = ({ onIrcEvent, isBlocked }) => {
 	const wsRef = useRef({});
 	const pendingJoinsRef = useRef({});
 	const nickRetryRef = useRef({});
+	const rejoinTargetsRef = useRef({});
 	const historySaveRef = useRef({});
 	const historyPendingRef = useRef({});
 	const connectedAtRef = useRef({});
@@ -109,6 +110,7 @@ const useConnections = ({ onIrcEvent, isBlocked }) => {
 			getWsRef: () => wsRef,
 			getPendingJoinsRef: () => pendingJoinsRef,
 			getNickRetryRef: () => nickRetryRef,
+			getRejoinTargetsRef: () => rejoinTargetsRef,
 			getConnectedAtRef: () => connectedAtRef,
 			getOnIrcEventRef: () => onIrcEventRef,
 			isBlocked,
@@ -131,11 +133,13 @@ const useConnections = ({ onIrcEvent, isBlocked }) => {
 	const connect = (payload) => buildLifecycle().connect(payload);
 	const disconnect = (connectionId) =>
 		buildLifecycle().disconnect(connectionId);
+	const close = (connectionId) => buildLifecycle().close(connectionId);
 
 	return {
 		connections,
 		connect,
 		disconnect,
+		close,
 		sendMessage,
 		updateChatState,
 		addStatusNote,

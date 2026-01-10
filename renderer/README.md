@@ -32,6 +32,7 @@ npm run dev
 - New messages from blocked users are hidden (existing logs remain).
 - DM tabs are not restored on launch; opening a DM loads its local history.
 - DM tabs dim when the nick is not seen in a channel on that connection.
+- Channel and DM tabs stay visible (dimmed) when disconnected so you can read logs.
 - Channel and DM tabs can clear their local logs from the right-click menu.
 - Channel and DM tabs can toggle a per-tab beep on new messages from the right-click menu.
 - Sends a local echo for outgoing DM messages when the server does not support echo-message.
@@ -46,6 +47,8 @@ npm run dev
 - Unread counts only include chat messages (not join/part/quit activity).
 - Shows a "New messages" divider at the last read position when returning to a channel/DM.
 - Switching channels or DMs focuses the message input automatically.
+- Disconnect keeps the server and its tabs in the sidebar; closing removes it (both are in the server context menu; the power icon is a disconnect shortcut).
+- When disconnected, chat actions like sending messages, WHOIS, and opening new DMs are disabled, and the server context menu offers reconnect.
 - Up/down arrows cycle through your sent input history.
 - Tab completes nicknames in the active channel and cycles matches (Shift+Tab reverses).
 - DM views show a right sidebar with user notes.

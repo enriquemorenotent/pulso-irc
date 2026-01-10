@@ -8,6 +8,8 @@ const OnlineFriendsList = ({
 	offlineFriends,
 	onOpenDm,
 	connectionLabelsById,
+	isConnectionConnected,
+	canStartDm,
 	showOffline,
 	onToggleShowOffline,
 }) => {
@@ -57,15 +59,27 @@ const OnlineFriendsList = ({
 		const displayName = friend.alias || friend.displayNick || friend.nick;
 		const nickColor = getNickColorClasses(friend.displayNick || friend.nick);
 		const avatarClass = nickColor ? nickColor.bg : 'bg-neutral-500';
+		const canOpen =
+			Boolean(onOpenDm) &&
+			(connectionId
+				? isConnectionConnected && isConnectionConnected(connectionId)
+				: Boolean(canStartDm));
 		const buttonClass = isOnline
 			? 'w-full flex items-center gap-2 px-4 py-1.5 text-sm text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-colors cursor-pointer dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-200'
 			: 'w-full flex items-center gap-2 px-4 py-1.5 text-sm text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 transition-colors cursor-pointer dark:text-neutral-500 dark:hover:bg-neutral-800 dark:hover:text-neutral-300';
+		const disabledClass = canOpen ? '' : 'opacity-60 cursor-not-allowed';
 
 		return (
 			<button
 				type="button"
-				onClick={() => onOpenDm(displayName, connectionId)}
-				className={buttonClass}
+				onClick={() => {
+					if (!canOpen) {
+						return;
+					}
+					onOpenDm(displayName, connectionId || null);
+				}}
+				disabled={!canOpen}
+				className={`${buttonClass} ${disabledClass}`}
 				title={`Message ${displayName}`}
 			>
 				<div className="relative">

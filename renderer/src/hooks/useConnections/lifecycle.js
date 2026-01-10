@@ -4,6 +4,7 @@ const createConnectionLifecycle = ({
 	getWsRef,
 	getPendingJoinsRef,
 	getNickRetryRef,
+	getRejoinTargetsRef,
 	getConnectedAtRef,
 	isBlocked,
 	addStatusNote,
@@ -29,10 +30,12 @@ const createConnectionLifecycle = ({
 		settings,
 		clientCert,
 		clientKey,
+		existingChatState,
 	}) => {
 		const wsRef = getWsRef();
 		const pendingJoinsRef = getPendingJoinsRef();
 		const nickRetryRef = getNickRetryRef();
+		const rejoinTargetsRef = getRejoinTargetsRef();
 		const connectedAtRef = getConnectedAtRef();
 		const onIrcEventRef = getOnIrcEventRef();
 
@@ -69,14 +72,37 @@ const createConnectionLifecycle = ({
 			wsRef.current[connectionId] = null;
 		}
 
-		const baseState = withStatus(
-			createInitialChatState(settings.nick),
-			'connecting',
-			''
-		);
+		const baseState = existingChatState
+			? {
+					...existingChatState,
+					me: settings.nick || existingChatState.me,
+			  }
+			: createInitialChatState(settings.nick);
+		const connectingState = withStatus(baseState, 'connecting', '');
 		connectedAtRef.current[connectionId] = Date.now();
-		const history = loadHistory(connectionId, settings.host);
-		const initial = applyHistory(baseState, history, { includeDms: false });
+		const rejoinTargets = new Set();
+		if (existingChatState?.targets) {
+			Object.entries(existingChatState.targets).forEach(
+				([name, target]) => {
+					if (target?.type !== 'channel') {
+						return;
+					}
+					if (!target.joined) {
+						return;
+					}
+					rejoinTargets.add(name);
+				}
+			);
+		}
+		if (rejoinTargetsRef) {
+			rejoinTargetsRef.current[connectionId] = rejoinTargets;
+		}
+		const history = existingChatState
+			? null
+			: loadHistory(connectionId, settings.host);
+		const initial = existingChatState
+			? connectingState
+			: applyHistory(connectingState, history, { includeDms: false });
 		pendingJoinsRef.current[connectionId] = new Set();
 		nickRetryRef.current[connectionId] = createNickRetryState(
 			settings.nick,
@@ -109,6 +135,7 @@ const createConnectionLifecycle = ({
 			isBlocked,
 			pendingJoinsRef,
 			nickRetryRef,
+			rejoinTargetsRef,
 			connectedAtRef,
 		});
 		ws.addEventListener('message', handleGatewayMessage);
@@ -123,6 +150,7 @@ const createConnectionLifecycle = ({
 				connectionId,
 				pendingJoinsRef,
 				nickRetryRef,
+				rejoinTargetsRef,
 				connectedAtRef,
 				clearHistoryRefs,
 			});
@@ -144,6 +172,7 @@ const createConnectionLifecycle = ({
 		const wsRef = getWsRef();
 		const pendingJoinsRef = getPendingJoinsRef();
 		const nickRetryRef = getNickRetryRef();
+		const rejoinTargetsRef = getRejoinTargetsRef();
 		const connectedAtRef = getConnectedAtRef();
 
 		const ws = wsRef.current[connectionId];
@@ -164,6 +193,62 @@ const createConnectionLifecycle = ({
 			connectionId,
 			pendingJoinsRef,
 			nickRetryRef,
+			rejoinTargetsRef,
+			connectedAtRef,
+			clearHistoryRefs,
+		});
+		setConnections((prev) => {
+			const existing = prev[connectionId];
+			if (!existing) {
+				return prev;
+			}
+			const clearedState = clearChannelUsersOnDisconnect(
+				existing.chatState
+			);
+			return {
+				...prev,
+				[connectionId]: {
+					...existing,
+					chatState: withStatus(
+						clearedState,
+						'closed',
+						existing.chatState.error
+					),
+				},
+			};
+		});
+	};
+
+	const close = (connectionId) => {
+		const connection = connections[connectionId];
+		if (!connection) {
+			return;
+		}
+		const wsRef = getWsRef();
+		const pendingJoinsRef = getPendingJoinsRef();
+		const nickRetryRef = getNickRetryRef();
+		const rejoinTargetsRef = getRejoinTargetsRef();
+		const connectedAtRef = getConnectedAtRef();
+
+		const ws = wsRef.current[connectionId];
+		if (ws && ws.readyState === readyState.OPEN) {
+			sendMessage(connectionId, {
+				type: 'disconnect',
+				connId: connection.settings.connId,
+				reason: 'client_request',
+			});
+		}
+
+		if (ws) {
+			ws.close();
+			wsRef.current[connectionId] = null;
+		}
+
+		clearConnectionRefs({
+			connectionId,
+			pendingJoinsRef,
+			nickRetryRef,
+			rejoinTargetsRef,
 			connectedAtRef,
 			clearHistoryRefs,
 		});
@@ -177,7 +262,7 @@ const createConnectionLifecycle = ({
 		});
 	};
 
-	return { connect, disconnect };
+	return { connect, disconnect, close };
 };
 
 export { createConnectionLifecycle };

@@ -33,15 +33,16 @@ const ChatPanel = ({
 	});
 	const { contextMenu, openContextMenu, closeContextMenu } =
 		useNickContextMenu();
+	const isConnected = chatState.status === 'connected';
 
 	const handleNickDoubleClick = useCallback(
 		(nick) => {
-			if (!onOpenDm || !nick) {
+			if (!onOpenDm || !nick || !isConnected) {
 				return;
 			}
 			onOpenDm(nick);
 		},
-		[onOpenDm]
+		[isConnected, onOpenDm]
 	);
 
 	const lastReadId = activeTarget.lastReadId;
@@ -80,8 +81,8 @@ const ChatPanel = ({
 					isFriend={isFriend ? isFriend(contextMenu.nick) : false}
 					isBlocked={isBlocked ? isBlocked(contextMenu.nick) : false}
 					onClose={closeContextMenu}
-					onOpenDm={onOpenDm}
-					onWhois={onWhois}
+					onOpenDm={isConnected ? onOpenDm : null}
+					onWhois={isConnected ? onWhois : null}
 					onAddFriend={onAddFriend}
 					onRemoveFriend={onRemoveFriend}
 					onBlockUser={onBlockUser}
@@ -92,6 +93,7 @@ const ChatPanel = ({
 			<MessageComposer
 				activeTarget={activeTarget}
 				chatState={chatState}
+				isConnected={isConnected}
 				effectiveSettings={effectiveSettings}
 				sendMessage={sendMessage}
 				addStatusNote={addStatusNote}
