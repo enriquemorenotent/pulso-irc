@@ -7,6 +7,9 @@ const MESSAGE_LIMIT = 300;
 const canUseStorage = () =>
 	typeof window !== 'undefined' && Boolean(window.localStorage);
 
+const markHistoryMessages = (messages) =>
+	messages.map((message) => ({ ...message, isHistory: true }));
+
 const sanitizeMessage = (message) => {
 	const sanitized = {
 		id: message.id,
@@ -193,7 +196,9 @@ const applyHistory = (state, history, options = {}) => {
 		const type = isDm ? 'dm' : 'channel';
 		nextState = ensureTarget(nextState, name, type);
 
-		const messages = entry.messages.slice(-MESSAGE_LIMIT);
+		const messages = markHistoryMessages(
+			entry.messages.slice(-MESSAGE_LIMIT)
+		);
 		const lastReadId = messages[messages.length - 1]?.id || null;
 		const target = nextState.targets[name];
 
@@ -238,7 +243,9 @@ const applyHistoryTarget = (state, history, targetName, typeOverride = '') => {
 	let nextLastReadId = target.lastReadId || null;
 
 	if (entry && Array.isArray(entry.messages) && entry.messages.length) {
-		const historyMessages = entry.messages.slice(-MESSAGE_LIMIT);
+		const historyMessages = markHistoryMessages(
+			entry.messages.slice(-MESSAGE_LIMIT)
+		);
 		const historyIds = new Set(historyMessages.map((msg) => msg.id));
 		const merged = [
 			...historyMessages,

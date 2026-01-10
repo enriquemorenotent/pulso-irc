@@ -66,6 +66,11 @@ const useMessageNotifications = (
 					// Mark as seen
 					seenMessagesRef.current.add(msg.id);
 
+					// Skip history replays
+					if (msg.isHistory) {
+						return;
+					}
+
 					// Skip system messages, joins, parts, etc.
 					if (msg.type !== 'message' && msg.type !== 'action') {
 						return;

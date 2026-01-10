@@ -57,6 +57,7 @@ test('applyHistory can skip DM targets', async () => {
 	const next = applyHistory(base, history, { includeDms: false });
 
 	assert.ok(next.targets['#chan']);
+	assert.equal(next.targets['#chan'].messages[0].isHistory, true);
 	assert.equal(next.targets.buddy, undefined);
 });
 
@@ -92,6 +93,8 @@ test('applyHistoryTarget merges DM history without clobbering new messages', asy
 	const messages = next.targets.buddy.messages;
 	assert.equal(messages[0].id, 'dm-old');
 	assert.equal(messages[messages.length - 1].id, newId);
+	assert.equal(messages[0].isHistory, true);
+	assert.equal(messages[messages.length - 1].isHistory, undefined);
 	assert.equal(next.targets.buddy.lastReadId, 'dm-old');
 	assert.equal(next.targets.buddy.historyLoaded, true);
 });
